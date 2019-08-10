@@ -1,0 +1,28 @@
+{
+    "name": "jasonej/enhanced-resources",
+    "description": "Laravel's API Resources enhanced.",
+    "minimum-stability": "stable",
+    "license": "proprietary",
+    "authors": [
+        {
+            "name": "Jason Jones",
+            "email": "jason.erik.jones@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Jasonej\\EnhancedResources\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Jasonej\\EnhancedResources\\Tests\\": "tests/"
+        }
+    },
+    "require": {
+        "laravel/framework": "^5.8"
+    },
+    "require-dev": {
+        "orchestra/testbench": "^3.8"
+    }
+}
