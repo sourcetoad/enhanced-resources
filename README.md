@@ -2,7 +2,7 @@
 Laravel's API Resources enhanced.
 ## Installation
 ```
-$ composer require jasonej/enhanced-resources
+$ composer require sourcetoad/enhanced-resources
 ```
 ## Usage
 ### Creating an Enhanced Resource
