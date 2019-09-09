@@ -34,13 +34,13 @@ trait EnhancedResource
         return $this;
     }
 
-    public function toArray($request)
+    public function resolve($request = null)
     {
         if ($this->resource instanceof Model) {
             $this->resource->append($this->appends);
         }
 
-        $data = parent::toArray($request);
+        $data = parent::resolve($request);
 
         $data = empty($this->excludes) ? $data
             : Arr::except($data, $this->excludes);
