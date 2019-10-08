@@ -12,6 +12,8 @@ class EnhancedResource extends JsonResource
 {
     use Enhanced, ExcludesData, IncludesData, MasksData;
 
+    protected static $anonymousResourceCollectionClass = EnhancedAnonymousResourceCollection::class;
+
     public function __construct($resource)
     {
         parent::__construct($resource);
@@ -22,7 +24,7 @@ class EnhancedResource extends JsonResource
     public static function collection($resource): EnhancedAnonymousResourceCollection
     {
         return tap(
-            new EnhancedAnonymousResourceCollection($resource, static::class),
+            new static::$anonymousResourceCollectionClass($resource, static::class),
             function ($collection) {
                 if (property_exists(static::class, 'preserveKeys')) {
                     $collection->preserveKeys = (new static([]))->preserveKeys === true;
