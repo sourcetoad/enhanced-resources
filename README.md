@@ -105,3 +105,42 @@ UserResource::make($user)->only(['first_name', 'last_name'])->response();
   "first_name": "John",
   "last_name": "Doe"
 }
+```
+
+## Adding New Enhancements
+Enhanced resources are quite extensible. In order to add an additional piece of behavior you just create a trait and have your resource/collection class use it.
+
+```php
+<?php
+
+trait SomeNewEnhancement
+{
+    protected static function bootSomeNewEnhancement()
+    {
+        static::registerHook(function ($target, array $data) {
+            // Apply your changes to the resolved data here
+        });
+
+        static::registerMap(function ($resourceCollection) {
+            // Map your enhancement behavior to the underlying resource here
+        });
+    }
+}
+
+class ExtraEnhancedResource extends EnhancedResource
+{
+    use SomeNewEnhancement;
+
+    protected static $anonymousResourceCollectionClass = ExtraEnhancedAnonymousResourceCollection::class;
+}
+
+class ExtraEnhancedCollection extends EnhancedCollection
+{
+    use SomeNewEnhancement;
+}
+
+class ExtraEnhancedAnonymousResourceCollection extends ExtraEnhancedCollection
+{
+    use SomeNewEnhancement;
+}
+```
