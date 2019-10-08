@@ -1,62 +1,33 @@
 <?php
 
-namespace Jasonej\EnhancedResources;
+namespace Sourcetoad\EnhancedResources;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Arr;
+use Illuminate\Http\Resources\Json\JsonResource;
+use Sourcetoad\EnhancedResources\Concerns\Enhanced;
+use Sourcetoad\EnhancedResources\Concerns\ExcludesData;
+use Sourcetoad\EnhancedResources\Concerns\IncludesData;
+use Sourcetoad\EnhancedResources\Concerns\MasksData;
 
-trait EnhancedResource
+class EnhancedResource extends JsonResource
 {
-    protected $appends = [];
+    use Enhanced, ExcludesData, IncludesData, MasksData;
 
-    protected $excludes = [];
-
-    protected $only = [];
-
-    public function append(array $keys)
+    public function __construct($resource)
     {
-        $this->appends = $keys;
+        parent::__construct($resource);
 
-        return $this;
+        static::bootTraits();
     }
 
-    public function exclude(array $keys)
+    public static function collection($resource): EnhancedAnonymousResourceCollection
     {
-        $this->excludes = $keys;
-
-        return $this;
-    }
-
-    public function only(array $keys)
-    {
-        $this->only = $keys;
-
-        return $this;
-    }
-
-    public function resolve($request = null)
-    {
-        if ($this->resource instanceof Model) {
-            $this->resource->append($this->appends);
-        }
-
-        $data = parent::resolve($request);
-
-        $data = empty($this->excludes) ? $data
-            : Arr::except($data, $this->excludes);
-        $data = empty($this->only) ? $data
-            : Arr::only($data, $this->only);
-
-        return $data;
-    }
-
-    public static function collection($resource)
-    {
-        return tap(new AnonymousResourceCollection($resource, static::class),
+        return tap(
+            new EnhancedAnonymousResourceCollection($resource, static::class),
             function ($collection) {
                 if (property_exists(static::class, 'preserveKeys')) {
                     $collection->preserveKeys = (new static([]))->preserveKeys === true;
                 }
-            });
+            }
+        );
     }
 }

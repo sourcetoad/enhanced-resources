@@ -11,12 +11,12 @@
     ],
     "autoload": {
         "psr-4": {
-            "Jasonej\\EnhancedResources\\": "src/"
+            "Sourcetoad\\EnhancedResources\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Jasonej\\EnhancedResources\\Tests\\": "tests/"
+            "Sourcetoad\\EnhancedResources\\Tests\\": "tests/"
         }
     },
     "require": {

@@ -1,18 +1,21 @@
 <?php
 
-namespace Jasonej\EnhancedResources;
+namespace Sourcetoad\EnhancedResources;
 
-trait EnhancedCollection
+use Illuminate\Http\Resources\Json\ResourceCollection;
+use Sourcetoad\EnhancedResources\Concerns\Enhanced;
+use Sourcetoad\EnhancedResources\Concerns\ExcludesData;
+use Sourcetoad\EnhancedResources\Concerns\IncludesData;
+use Sourcetoad\EnhancedResources\Concerns\MasksData;
+
+class EnhancedCollection extends ResourceCollection
 {
-    use EnhancedResource;
+    use Enhanced, ExcludesData, IncludesData, MasksData;
 
-    public function toArray($request)
+    public function __construct($resource)
     {
-        $this->collection = $this->collection
-            ->map->append($this->appends)
-            ->map->exclude($this->excludes)
-            ->map->only($this->only);
+        parent::__construct($resource);
 
-        return parent::toArray($request);
+        static::bootTraits();
     }
 }
