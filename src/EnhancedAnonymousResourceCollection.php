@@ -2,19 +2,19 @@
 
 namespace Sourcetoad\EnhancedResources;
 
-use Illuminate\Http\Resources\Json\ResourceCollection;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Sourcetoad\EnhancedResources\Concerns\Enhanced;
 use Sourcetoad\EnhancedResources\Concerns\ExcludesData;
 use Sourcetoad\EnhancedResources\Concerns\IncludesData;
 use Sourcetoad\EnhancedResources\Concerns\MasksData;
 
-class EnhancedCollection extends ResourceCollection
+class EnhancedAnonymousResourceCollection extends AnonymousResourceCollection
 {
     use Enhanced, ExcludesData, IncludesData, MasksData;
 
-    public function __construct($resource)
+    public function __construct($resource, $collects)
     {
-        parent::__construct($resource);
+        parent::__construct($resource, $collects);
 
         static::bootTraits();
     }
