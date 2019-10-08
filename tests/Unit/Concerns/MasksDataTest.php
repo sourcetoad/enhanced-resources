@@ -34,4 +34,15 @@ class MasksDataTest extends TestCase
         $this->assertSame('t*****@example.com', $data['email_address']);
         $this->assertSame('*****', $data['password']);
     }
+
+    public function testMasksCanBeRemoved()
+    {
+        $data = UserResource::make($this->model)
+            ->mask()
+            ->unmask()
+            ->resolve();
+
+        $this->assertSame('test@example.com', $data['email_address']);
+        $this->assertSame('CorrectBatteryHorseStaple', $data['password']);
+    }
 }
