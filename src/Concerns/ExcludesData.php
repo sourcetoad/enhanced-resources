@@ -12,7 +12,10 @@ trait ExcludesData
 
     public function exclude($attributes)
     {
-        array_push($this->excludes, ...Arr::wrap($attributes));
+        $attributes = Arr::wrap($attributes);
+        if (!empty($attributes)) {
+            array_push($this->excludes, ...$attributes);
+        }
 
         $this->excludes = array_unique($this->excludes);
 

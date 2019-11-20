@@ -10,7 +10,10 @@ trait IncludesData
 
     public function append($attributes)
     {
-        array_push($this->appends, ...Arr::wrap($attributes));
+        $attributes = Arr::wrap($attributes);
+        if (!empty($attributes)) {
+            array_push($this->appends, ...$attributes);
+        }
 
         $this->appends = array_unique($this->appends);
 
