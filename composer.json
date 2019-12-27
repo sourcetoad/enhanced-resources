@@ -2,7 +2,7 @@
     "name": "sourcetoad/enhanced-resources",
     "description": "Laravel's API Resources enhanced.",
     "minimum-stability": "stable",
-    "license": "proprietary",
+    "license": "MIT",
     "authors": [
         {
             "name": "Jason Jones",
@@ -20,7 +20,7 @@
         }
     },
     "require": {
-        "laravel/framework": "^5.8|^6.0"
+        "laravel/framework": "^5.7|^5.8|^6.0"
     },
     "require-dev": {
         "orchestra/testbench": "^3.8"
