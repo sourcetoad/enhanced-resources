@@ -2,7 +2,7 @@
     "name": "sourcetoad/enhanced-resources",
     "description": "Laravel's API Resources enhanced.",
     "minimum-stability": "stable",
-    "license": "proprietary",
+    "license": "MIT",
     "authors": [
         {
             "name": "Jason Jones",
