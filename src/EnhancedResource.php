@@ -3,6 +3,7 @@
 namespace Sourcetoad\EnhancedResources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
+use Sourcetoad\EnhancedResources\Concerns\CustomHooks;
 use Sourcetoad\EnhancedResources\Concerns\Enhanced;
 use Sourcetoad\EnhancedResources\Concerns\ExcludesData;
 use Sourcetoad\EnhancedResources\Concerns\IncludesData;
@@ -10,7 +11,7 @@ use Sourcetoad\EnhancedResources\Concerns\MasksData;
 
 class EnhancedResource extends JsonResource
 {
-    use Enhanced, ExcludesData, IncludesData, MasksData;
+    use CustomHooks, Enhanced, ExcludesData, IncludesData, MasksData;
 
     protected static $anonymousResourceCollectionClass = EnhancedAnonymousResourceCollection::class;
 
