@@ -2,6 +2,7 @@
 
 namespace Sourcetoad\EnhancedResources\Concerns;
 
+use Illuminate\Contracts\Pagination\Paginator;
 use Illuminate\Support\Collection;
 
 trait Enhanced
@@ -13,7 +14,7 @@ trait Enhanced
 
     public function resolve($request = null)
     {
-        if ($this->resource instanceof Collection) {
+        if ($this->resource instanceof Collection || $this->resource instanceof Paginator) {
             foreach (static::$registeredMaps as $map) {
                 $map($this);
             }
