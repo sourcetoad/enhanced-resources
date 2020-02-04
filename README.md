@@ -107,6 +107,32 @@ UserResource::make($user)->only(['first_name', 'last_name'])->response();
 }
 ```
 
+### Custom Hooks
+If none of the built in features of Enhanced Resources fits your needs you can register custom hooks on the fly using the `customHook()` method.
+
+```php
+$externalData = [
+    1 => 'some-value'
+];
+
+UserResource::make($user)
+    ->customHook(function (UserResource $target, array $data) use ($externalData) {
+        $data['external_data'] = $externalData[$target->resource->getKey()];
+
+        return $data;
+    })
+    ->response();
+```
+```json
+{
+  "id": 1,
+  "first_name": "John",
+  "last_name": "Doe",
+  "secret": "SUPERSECRET",
+  "external_data": "some-value"
+}
+```
+
 ## Adding New Enhancements
 Enhanced resources are quite extensible. In order to add an additional piece of behavior you just create a trait and have your resource/collection class use it.
 

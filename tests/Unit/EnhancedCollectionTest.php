@@ -4,6 +4,7 @@ namespace Sourcetoad\EnhancedResources\Tests\Unit;
 
 use Orchestra\Testbench\TestCase;
 use Sourcetoad\EnhancedResources\EnhancedAnonymousResourceCollection;
+use Sourcetoad\EnhancedResources\EnhancedResource;
 use Sourcetoad\EnhancedResources\Tests\User;
 use Sourcetoad\EnhancedResources\Tests\UserResource;
 
@@ -91,6 +92,32 @@ class EnhancedCollectionTest extends TestCase
         foreach ($data as $datum) {
             $this->assertArrayHasKey('id', $datum);
             $this->assertCount(1, $datum);
+        }
+    }
+
+    public function testCustomHookCanBeAppliedToCollection()
+    {
+        // Arrange
+        $hasChildren = [
+            1 => false,
+            2 => true
+        ];
+
+        // Act
+        $data = $this->collection
+            ->customHook(function (EnhancedResource $resource, array $data) use ($hasChildren) {
+                $data['has_children'] = $hasChildren[$resource->resource->getKey()];
+
+                return $data;
+            })
+            ->resolve();
+
+        // Assert
+        $this->assertNotEmpty($data);
+
+        foreach ($data as $datum) {
+            $this->assertArrayHasKey('has_children', $datum);
+            $this->assertSame($hasChildren[$datum['id']], $datum['has_children']);
         }
     }
 }
