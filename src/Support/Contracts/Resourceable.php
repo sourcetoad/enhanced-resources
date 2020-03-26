@@ -6,5 +6,5 @@ use Sourcetoad\EnhancedResources\EnhancedResource;
 
 interface Resourceable
 {
-    public function toResource(string $resourceClass): EnhancedResource;
+    public function toResource(?string $resourceClass = null): EnhancedResource;
 }
