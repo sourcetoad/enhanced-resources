@@ -37,7 +37,17 @@ abstract class EnhancedResource extends JsonResource
 
     public static function hasEnhancement(string $name): bool
     {
-        return Arr::has(static::$enhancements, static::class.'.'.$name);
+        if (Arr::has(static::$enhancements, static::class.'.'.$name)) {
+            return true;
+        }
+
+        foreach (class_parents(static::class) as $ancestor) {
+            if (Arr::has(static::$enhancements, "{$ancestor}.{$name}")) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public function toArray($request)
