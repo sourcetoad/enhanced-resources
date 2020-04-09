@@ -38,19 +38,28 @@ abstract class EnhancedResource extends JsonResource
         return parent::toArray($request);
     }
 
-    public static function hasEnhancement(string $name): bool
+    public static function getEnhancement(string $name)
     {
-        if (Arr::has(static::$enhancements, static::class.'.'.$name)) {
-            return true;
+        $enhancement = Arr::get(static::$enhancements, static::class.'.'.$name);
+
+        if ($enhancement !== null) {
+            return $enhancement;
         }
 
         foreach (class_parents(static::class) as $ancestor) {
-            if (Arr::has(static::$enhancements, "{$ancestor}.{$name}")) {
-                return true;
+            $enhancement = Arr::get(static::$enhancements, "{$ancestor}.{$name}");
+
+            if ($enhancement !== null) {
+                return $enhancement;
             }
         }
 
-        return false;
+        return null;
+    }
+
+    public static function hasEnhancement(string $name): bool
+    {
+        return static::getEnhancement($name) !== null;
     }
 
     public function toArray($request)

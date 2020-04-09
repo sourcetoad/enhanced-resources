@@ -56,6 +56,22 @@ class RegistrationTest extends TestCase
         );
     }
 
+    public function testItPrioritizesEnhancementsRegisteredOnDescendents(): void
+    {
+        # Arrange
+        EnhancedResource::enhance('example', function() {});
+
+        # Act
+        UserResource::enhance('example', ExampleEnhancement::class);
+
+        # Assert
+        $this->assertSame(
+            ExampleEnhancement::class,
+            UserResource::getEnhancement('example'),
+            'Enhancements were not prioritized correctly.'
+        );
+    }
+
     protected function tearDown(): void
     {
         parent::tearDown();
