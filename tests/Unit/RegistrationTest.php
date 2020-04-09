@@ -3,9 +3,11 @@
 namespace Sourcetoad\EnhancedResources\Tests\Unit;
 
 use InvalidArgumentException;
+use Mockery\Mock;
 use Sourcetoad\EnhancedResources\EnhancedResource;
 use Sourcetoad\EnhancedResources\Tests\ExampleEnhancement;
 use Sourcetoad\EnhancedResources\Tests\TestCase;
+use Sourcetoad\EnhancedResources\Tests\User;
 use Sourcetoad\EnhancedResources\Tests\UserResource;
 
 class RegistrationTest extends TestCase
@@ -70,6 +72,30 @@ class RegistrationTest extends TestCase
             UserResource::getEnhancement('example'),
             'Enhancements were not prioritized correctly.'
         );
+    }
+
+    public function testItCanCallRegisteredEnhancements(): void
+    {
+        # Expect
+        $this->expectNotToPerformAssertions();
+
+        # Arrange
+        EnhancedResource::enhance('example', ExampleEnhancement::class);
+
+        # Act
+        UserResource::make(new User)->example();
+    }
+
+    public function testItCanCallRegisteredCallableEnhancements(): void
+    {
+        # Expect
+        $this->expectNotToPerformAssertions();
+
+        # Arrange
+        EnhancedResource::enhance('example', function () {});
+
+        # Act
+        UserResource::make(new User)->example();
     }
 
     protected function tearDown(): void

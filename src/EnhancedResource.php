@@ -11,6 +11,7 @@ use InvalidArgumentException;
 
 abstract class EnhancedResource extends JsonResource
 {
+    protected $appliedEnhancements = [];
     protected static $enhancements = [];
     protected $format = '';
 
@@ -67,5 +68,27 @@ abstract class EnhancedResource extends JsonResource
         $method = Str::camel($this->format.'Format');
 
         return $this->$method($request);
+    }
+
+    public function __call($method, $parameters)
+    {
+        $enhancement = static::getEnhancement($method);
+
+        if (is_callable($enhancement)) {
+            $this->appliedEnhancements[] = [
+                'enhancement' => $enhancement,
+                'parameters' => $parameters
+            ];
+
+            return $this;
+        }
+
+        if (is_subclass_of($enhancement, Enhancement::class)) {
+            $this->appliedEnhancements[] = new $enhancement(...$parameters);
+
+            return $this;
+        }
+
+        return parent::__call($method, $parameters);
     }
 }
