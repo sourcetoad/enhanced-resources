@@ -21,6 +21,18 @@ class RegistrationTest extends TestCase
         );
     }
 
+    public function testItCanRegisterCallableEnhancements(): void
+    {
+        # Act
+        EnhancedResource::enhance('example', function() {});
+
+        # Assert
+        $this->assertTrue(
+            EnhancedResource::hasEnhancement('example'),
+            'The enhancement was not registered.'
+        );
+    }
+
     public function testItInheritsEnhancements(): void
     {
         # Act

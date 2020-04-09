@@ -23,7 +23,10 @@ abstract class EnhancedResource extends JsonResource
 
     public static function enhance(string $name, $enhancement)
     {
-        if (!is_subclass_of($enhancement, Enhancement::class)) {
+        if (
+            !is_callable($enhancement)
+            && !is_subclass_of($enhancement, Enhancement::class)
+        ) {
             throw new InvalidArgumentException('Invalid enhancement.');
         }
 
