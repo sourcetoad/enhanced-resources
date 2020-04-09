@@ -8,6 +8,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use InvalidArgumentException;
+use Sourcetoad\EnhancedResources\Enhancements\Enhancement;
 
 abstract class EnhancedResource extends JsonResource
 {

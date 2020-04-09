@@ -1,6 +1,8 @@
 <?php
 
-namespace Sourcetoad\EnhancedResources;
+namespace Sourcetoad\EnhancedResources\Enhancements;
+
+use Sourcetoad\EnhancedResources\EnhancedResource;
 
 abstract class Enhancement
 {

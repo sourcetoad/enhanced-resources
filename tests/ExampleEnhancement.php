@@ -2,7 +2,7 @@
 
 namespace Sourcetoad\EnhancedResources\Tests;
 
-use Sourcetoad\EnhancedResources\Enhancement;
+use Sourcetoad\EnhancedResources\Enhancements\Enhancement;
 use Sourcetoad\EnhancedResources\EnhancedResource;
 
 class ExampleEnhancement extends Enhancement
