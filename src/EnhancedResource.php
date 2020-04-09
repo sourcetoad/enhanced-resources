@@ -64,6 +64,26 @@ abstract class EnhancedResource extends JsonResource
         return static::getEnhancement($name) !== null;
     }
 
+    public function resolve($request = null)
+    {
+        $data = parent::resolve($request);
+
+        foreach ($this->appliedEnhancements as $appliedEnhancement) {
+            if (is_array($appliedEnhancement)) {
+                $data = call_user_func(
+                    $appliedEnhancement['enhancement'],
+                    $this,
+                    $data,
+                    ...$appliedEnhancement['parameters']
+                );
+            } else {
+                $data = $appliedEnhancement($this, $data);
+            }
+        }
+
+        return $data;
+    }
+
     public function toArray($request)
     {
         $method = Str::camel($this->format.'Format');

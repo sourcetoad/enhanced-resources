@@ -97,15 +97,4 @@ class RegistrationTest extends TestCase
         # Act
         UserResource::make(new User)->example();
     }
-
-    protected function tearDown(): void
-    {
-        parent::tearDown();
-
-        $reflectionClass = new \ReflectionClass(EnhancedResource::class);
-        $reflectionProperty = $reflectionClass->getProperty('enhancements');
-        $reflectionProperty->setAccessible(true);
-        $reflectionProperty->setValue([]);
-        $reflectionProperty->setAccessible(false);
-    }
 }
