@@ -2,6 +2,7 @@
 
 namespace Sourcetoad\EnhancedResources\Tests\Unit;
 
+use InvalidArgumentException;
 use Sourcetoad\EnhancedResources\EnhancedResource;
 use Sourcetoad\EnhancedResources\Tests\ExampleEnhancement;
 use Sourcetoad\EnhancedResources\Tests\TestCase;
@@ -31,6 +32,16 @@ class RegistrationTest extends TestCase
             EnhancedResource::hasEnhancement('example'),
             'The enhancement was not registered.'
         );
+    }
+
+    public function testItThrowsAnExceptionWhenProvidedAnInvalidEnhancement(): void
+    {
+        # Expect
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Invalid enhancement.');
+
+        # Act
+        EnhancedResource::enhance('example', 2);
     }
 
     public function testItInheritsEnhancements(): void
