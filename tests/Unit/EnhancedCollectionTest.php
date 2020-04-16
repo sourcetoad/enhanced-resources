@@ -45,7 +45,7 @@ class EnhancedCollectionTest extends TestCase
         // Assert
         $this->assertNotEmpty($data);
 
-        foreach($data as $datum) {
+        foreach ($data as $datum) {
             $this->assertArrayHasKey('full_name', $datum);
         }
     }
