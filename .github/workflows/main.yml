@@ -54,5 +54,30 @@ jobs:
       - name: Install dependencies
         run: composer install --no-suggest --prefer-dist -n -o
 
-      - name: Run tests
+      - name: Run style check
+        id: style_check
         run: vendor/bin/phpcs
+
+      - name: Only run if style_check fails
+        if: steps.style_check.outcome == 'failure' && always()
+        run: echo "THIS RAN"
+
+      - name: Correct style violations
+        id: phpcbf
+        if: steps.style_check.outcome == 'failure' && always()
+        run: vendor/bin/phpcbf
+        continue-on-error: true
+
+      - name: Create style violation fix branch
+        if: steps.style_check.outcome == 'failure' && always()
+        run: |
+          git config user.name "GitHub Action"
+          git config user.email "sourcetoadci@users.noreply.github.com"
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/$GITHUB_REPOSITORY
+          git fetch
+          git stash
+          git checkout "phpcbf-${GITHUB_REF#refs/heads/}" 2>/dev/null || git checkout -b "phpcbf-${GITHUB_REF#refs/heads/}"
+          git stash apply
+          git commit -am "style: automated fixes for the ${GITHUB_REF#refs/heads/} branch"
+          git push -u origin "phpcbf-${GITHUB_REF#refs/heads/}"
+        continue-on-error: true
