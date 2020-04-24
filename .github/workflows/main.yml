@@ -2,7 +2,39 @@ name: main
 on:
   push:
 jobs:
+  js_example:
+    runs-on: ubuntu-latest
+    name: 'Hello World'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Cache dependencies
+        uses: actions/cache@v1
+        with:
+          path: ~/.composer/cache/files
+          key: dependencies-php-composer-${{ hashFiles('composer.json') }}
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '7.2'
+          coverage: none
+
+      - name: Install dependencies
+        run: composer install --no-suggest --prefer-dist -n -o
+
+      - name: Install hub
+        shell: bash
+        run: curl -fsSL https://github.com/github/hub/raw/master/script/get | bash -s 2.14.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Hello World
+        id: hello
+        uses: ./.github/actions/code-style-pr
   tests:
+    if: false
     runs-on: ubuntu-latest
     strategy:
       fail-fast: true
@@ -33,6 +65,7 @@ jobs:
       - name: Execute tests
         run: vendor/bin/phpunit --verbose
   code_styles:
+    if: false
     runs-on: ubuntu-latest
     name: Code Style
     steps:
