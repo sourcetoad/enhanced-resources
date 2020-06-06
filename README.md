@@ -56,6 +56,67 @@ Alternatively, you can provide the desired format after instantiation with the f
 ExampleResource::make($resource)->format('alternative');
 ```
 
+### Base Enhancements
+
+EnhancedResources comes with a small set of core enhancements: `append`, `call`, `except`, `only`, and `replace`.
+
+#### Append
+
+The append enhancement allows you to append data from the underlying resource object to the output.
+
+```php
+<?php
+
+ExampleResource::make($resource)->append('key1', 'key2');
+// Output will include the `key1` and `key2` keys even if they aren't included in the format.
+```
+
+#### Call
+
+The call enhancement allows you to use one off enhancements using a callable.
+
+```php
+<?php
+
+ExampleResource::make($resource)
+    ->call(function (ExampleResource $resource, array $data) {
+        // Alter $data
+
+        return $data;
+    });
+```
+
+#### Except
+
+The except enhancement allows you to exclude data from the output.
+
+```php
+<?php
+
+ExampleResource::make($resource)->except('key1', 'key2');
+```
+
+#### Only
+
+The only enhancement allows to limit the data to a given set of keys.
+
+```php
+<?php
+
+ExampleResource::make($resource)->only('key1', 'key2');
+```
+
+#### Replace
+
+The replace enhancement allows you to replace the dataset outright using `array_replace` or `array_replace_recursive`.
+
+```php
+<?php
+
+ExampleResource::make($resource)->replace([/* New Data */]); // recursive
+ExampleResource::make($resource)->replace([/* New Data */], false); // not recursive
+```
+
 ## Advanced Usage
 
 EnhancedResources allows you to enhance your resources beyond the included resources.

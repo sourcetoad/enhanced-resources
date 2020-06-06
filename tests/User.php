@@ -9,4 +9,9 @@ use Illuminate\Database\Eloquent\Model;
 final class User extends Model
 {
     protected $guarded = [];
+
+    public function getNameAttribute(): string
+    {
+        return $this->first_name . ' ' . $this->last_name;
+    }
 }
