@@ -6,7 +6,7 @@ namespace Sourcetoad\EnhancedResources\Tests;
 
 use Sourcetoad\EnhancedResources\EnhancedResource;
 
-final class UserResource extends EnhancedResource
+class UserResource extends EnhancedResource
 {
     public function alternativeFormat($request): array
     {

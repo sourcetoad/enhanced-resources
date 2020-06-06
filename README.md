@@ -55,3 +55,27 @@ Alternatively, you can provide the desired format after instantiation with the f
 
 ExampleResource::make($resource)->format('alternative');
 ```
+
+## Advanced Usage
+
+EnhancedResources allows you to enhance your resources beyond the included resources.
+
+### Custom Enhancements
+
+With the `EnhancementManager` you can easily add your own custom enhancements by just providing something `callable`, a name, and (optionally) a FQN for an `EnhancedResource`.
+
+```php
+<?php
+
+use Sourcetoad\EnhancedResources\EnhancedResource;
+use Sourcetoad\EnhancedResources\EnhancementManager;
+use Sourcetoad\EnhancedResources\Support\Facades\ResourceEnhancements;
+
+$exampleEnhancement = fn(EnhancedResource $resource, $data) => $data;
+
+// Resolve the Enhancement Manager out of the container.
+resolve(EnhancementManager::class)->register('example', $exampleEnhancement);
+
+// Use the ResourceEnhancements facade.
+ResourceEnhancements::register('example', fn(EnhancedResource $resource, $data) => $data);
+```

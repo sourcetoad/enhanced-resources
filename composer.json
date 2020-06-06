@@ -26,5 +26,15 @@
     "require-dev": {
         "nunomaduro/collision": "^4.2",
         "orchestra/testbench": "^5.0"
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Sourcetoad\\EnhancedResources\\ServiceProvider"
+            ],
+            "aliases": {
+                "ResourceEnhancements": "Sourcetoad\\EnhancedResources\\Support\\Facades\\ResourceEnhancements"
+            }
+        }
     }
 }
