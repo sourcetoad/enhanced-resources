@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Hash;
 use Sourcetoad\EnhancedResources\Exceptions\UndefinedFormatException;
 use Sourcetoad\EnhancedResources\Tests\TestCase;
 use Sourcetoad\EnhancedResources\Tests\User;
+use Sourcetoad\EnhancedResources\Tests\UserCollection;
 use Sourcetoad\EnhancedResources\Tests\UserResource;
 
 class FormattingTest extends TestCase
@@ -15,12 +16,14 @@ class FormattingTest extends TestCase
     public function testDefaultFormatIsToArray(): void
     {
         # Arrange
-        $user = new User([
-            'email_address' => 'john.doe@example.com',
-            'first_name' => 'John',
-            'last_name' => 'Doe',
-            'password' => Hash::make('correct-horse-battery-staple')
-        ]);
+        $user = new User(
+            [
+                'email_address' => 'john.doe@example.com',
+                'first_name'    => 'John',
+                'last_name'     => 'Doe',
+                'password'      => Hash::make('correct-horse-battery-staple')
+            ]
+        );
         $resource = UserResource::make($user);
 
         # Act
@@ -33,40 +36,17 @@ class FormattingTest extends TestCase
         );
     }
 
-    public function testFormatCanBeSetDuringInitialization(): void
-    {
-        # Arrange
-        $user = new User([
-            'email_address' => 'john.doe@example.com',
-            'first_name' => 'John',
-            'last_name' => 'Doe',
-            'password' => Hash::make('correct-horse-battery-staple')
-        ]);
-        $resource = UserResource::make($user, 'alternative');
-
-        # Act
-        $result = $resource->resolve();
-
-        # Assert
-        $this->assertEquals(
-            [
-                'email_address' => 'john.doe@example.com',
-                'first_name' => 'John',
-                'last_name' => 'Doe'
-            ],
-            $result
-        );
-    }
-
     public function testFormatCanBeSetAfterInitialization(): void
     {
         # Arrange
-        $user = new User([
-                             'email_address' => 'john.doe@example.com',
-                             'first_name' => 'John',
-                             'last_name' => 'Doe',
-                             'password' => Hash::make('correct-horse-battery-staple')
-                         ]);
+        $user = new User(
+            [
+                'email_address' => 'john.doe@example.com',
+                'first_name'    => 'John',
+                'last_name'     => 'Doe',
+                'password'      => Hash::make('correct-horse-battery-staple')
+            ]
+        );
         $resource = UserResource::make($user);
         $resource->format('alternative');
 
@@ -77,8 +57,8 @@ class FormattingTest extends TestCase
         $this->assertEquals(
             [
                 'email_address' => 'john.doe@example.com',
-                'first_name' => 'John',
-                'last_name' => 'Doe'
+                'first_name'    => 'John',
+                'last_name'     => 'Doe'
             ],
             $result
         );
@@ -91,6 +71,49 @@ class FormattingTest extends TestCase
         $this->expectExceptionMessage('No \'nonexistent\' format was defined for ' . UserResource::class);
 
         # Act
-        UserResource::make([], 'nonexistent')->resolve();
+        UserResource::make([])->format('nonexistent')->resolve();
+    }
+
+    public function testCollectionsDelegateTheFormatCallToTheResource(): void
+    {
+        # Arrange
+        $user1 = new User(
+            [
+                'email_address' => 'john.doe@example.com',
+                'first_name'    => 'John',
+                'last_name'     => 'Doe',
+                'password'      => Hash::make('correct-horse-battery-staple')
+            ]
+        );
+        $user2 = new User(
+            [
+                'email_address' => 'jane.doe@example.com',
+                'first_name'    => 'Jane',
+                'last_name'     => 'Doe',
+                'password'      => Hash::make('staple-battery-horse-correct')
+            ]
+        );
+
+        # Act
+        $result = UserCollection::make([$user1, $user2])
+            ->format('alternative')
+            ->resolve();
+
+        # Assert
+        $this->assertEquals(
+            [
+                [
+                    'email_address' => 'john.doe@example.com',
+                    'first_name'    => 'John',
+                    'last_name'     => 'Doe',
+                ],
+                [
+                    'email_address' => 'jane.doe@example.com',
+                    'first_name'    => 'Jane',
+                    'last_name'     => 'Doe'
+                ]
+            ],
+            $result
+        );
     }
 }

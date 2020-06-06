@@ -19,15 +19,14 @@ use Sourcetoad\EnhancedResources\Exceptions\UndefinedFormatException;
 abstract class EnhancedResource extends JsonResource
 {
     protected array $enhancements = [];
-    protected ?string $format;
+    protected ?string $format = null;
     protected EnhancementManager $manager;
 
-    public function __construct($resource, ?string $format = null)
+    public function __construct($resource)
     {
         parent::__construct($resource);
 
         $this->manager = resolve(EnhancementManager::class);
-        $this->format($format);
     }
 
     public function __call($method, $parameters)

@@ -56,6 +56,10 @@ Alternatively, you can provide the desired format after instantiation with the f
 ExampleResource::make($resource)->format('alternative');
 ```
 
+#### Collections
+
+Collections pass the format down to each of the collected resources as long as the collection collects EnhancedResources.
+
 ### Base Enhancements
 
 EnhancedResources comes with a small set of core enhancements: `append`, `call`, `except`, `only`, and `replace`.
