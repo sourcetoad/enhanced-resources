@@ -1,36 +1,60 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Sourcetoad\EnhancedResources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
-use Sourcetoad\EnhancedResources\Concerns\CustomHooks;
-use Sourcetoad\EnhancedResources\Concerns\Enhanced;
-use Sourcetoad\EnhancedResources\Concerns\ExcludesData;
-use Sourcetoad\EnhancedResources\Concerns\IncludesData;
-use Sourcetoad\EnhancedResources\Concerns\MasksData;
+use Illuminate\Support\Str;
+use Sourcetoad\EnhancedResources\Exceptions\UndefinedFormatException;
 
-class EnhancedResource extends JsonResource
+abstract class EnhancedResource extends JsonResource
 {
-    use CustomHooks, Enhanced, ExcludesData, IncludesData, MasksData;
+    protected ?string $format;
 
-    protected static $anonymousResourceCollectionClass = EnhancedAnonymousResourceCollection::class;
-
-    public function __construct($resource)
+    public function __construct($resource, ?string $format = null)
     {
         parent::__construct($resource);
 
-        static::bootTraits();
+        $this->format($format);
     }
 
-    public static function collection($resource): EnhancedAnonymousResourceCollection
+    /** @return static */
+    public function format(?string $format)
     {
-        return tap(
-            new static::$anonymousResourceCollectionClass($resource, static::class),
-            function ($collection) {
-                if (property_exists(static::class, 'preserveKeys')) {
-                    $collection->preserveKeys = (new static([]))->preserveKeys === true;
-                }
-            }
-        );
+        $this->format = $format;
+
+        $formatMethodName = $this->getFormatMethodName();
+
+        if (
+            $formatMethodName
+            && !method_exists($this, $formatMethodName)
+        ) {
+            $this->format = null;
+
+            throw new UndefinedFormatException(static::class, $format);
+        }
+
+        return $this;
+    }
+
+    public function toArray($request): array
+    {
+        $method = $this->getFormatMethodName();
+
+        if ($method === null) {
+            return parent::toArray($request);
+        }
+
+        return $this->$method($request);
+    }
+
+    protected function getFormatMethodName(): ?string
+    {
+        if ($this->format === null) {
+            return null;
+        }
+
+        return Str::camel($this->format . 'Format');
     }
 }
