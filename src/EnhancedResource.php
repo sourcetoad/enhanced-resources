@@ -62,9 +62,13 @@ abstract class EnhancedResource extends JsonResource
         return $this;
     }
 
-    public function resolve($request = null)
+    public function toArray($request): array
     {
-        $data = parent::resolve($request);
+        $method = $this->getFormatMethodName();
+
+        $data = $method === null
+            ? parent::toArray($request)
+            : $this->$method($request);
 
         foreach ($this->enhancements as ['name' => $name, 'parameters' => $parameters]) {
             $enhancement = $this->manager->getEnhancement($name, static::class);
@@ -78,17 +82,6 @@ abstract class EnhancedResource extends JsonResource
         }
 
         return $data;
-    }
-
-    public function toArray($request): array
-    {
-        $method = $this->getFormatMethodName();
-
-        if ($method === null) {
-            return parent::toArray($request);
-        }
-
-        return $this->$method($request);
     }
 
     protected function getFormatMethodName(): ?string

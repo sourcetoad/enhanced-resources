@@ -90,14 +90,14 @@ ExampleResource::make($resource)
     });
 ```
 
-#### Except
+#### Exclude
 
-The except enhancement allows you to exclude data from the output.
+The exclude enhancement allows you to exclude data from the output.
 
 ```php
 <?php
 
-ExampleResource::make($resource)->except('key1', 'key2');
+ExampleResource::make($resource)->exclude('key1', 'key2');
 ```
 
 #### Only
