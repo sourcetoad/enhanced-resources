@@ -56,10 +56,6 @@ Alternatively, you can provide the desired format after instantiation with the f
 ExampleResource::make($resource)->format('alternative');
 ```
 
-#### Collections
-
-Collections pass the format down to each of the collected resources as long as the collection collects EnhancedResources.
-
 ### Base Enhancements
 
 EnhancedResources comes with a small set of core enhancements: `append`, `call`, `except`, `only`, and `replace`.
@@ -120,6 +116,14 @@ The replace enhancement allows you to replace the dataset outright using `array_
 ExampleResource::make($resource)->replace([/* New Data */]); // recursive
 ExampleResource::make($resource)->replace([/* New Data */], false); // not recursive
 ```
+
+
+### Collections
+
+Enhanced collections work by mapping the format and enhancement calls to each resource contained within.
+As a result enhanced collections only work when they collect enhanced resources.
+The easiest way to handle this is to set the `$collects` property on the enhanced collection or ensure that you're
+following the standard convention for resource and collection naming so that the `collects()` method can detect it.
 
 ## Advanced Usage
 
