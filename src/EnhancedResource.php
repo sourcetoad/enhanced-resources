@@ -43,6 +43,15 @@ abstract class EnhancedResource extends JsonResource
         return parent::__call($method, $parameters);
     }
 
+    public static function collection($resource): EnhancedAnonymousCollection
+    {
+        return tap(new EnhancedAnonymousCollection($resource, static::class), function ($collection) {
+            if (property_exists(static::class, 'preserveKeys')) {
+                $collection->preserveKeys = (new static([]))->preserveKeys === true;
+            }
+        });
+    }
+
     /** @return static */
     public function format(?string $format)
     {

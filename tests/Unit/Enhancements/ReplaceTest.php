@@ -36,6 +36,38 @@ class ReplaceTest extends TestCase
         $this->assertSame('Jane', $result['first_name']);
     }
 
+    public function testAnonymousCollectionsCanReplaceData(): void
+    {
+        # Arrange
+        $user1 = new User(
+            [
+                'email_address' => 'john.doe@example.com',
+                'first_name'    => 'John',
+                'last_name'     => 'Doe',
+                'password'      => Hash::make('correct-horse-battery-staple')
+            ]
+        );
+        $user2 = new User(
+            [
+                'email_address' => 'jane.doe@example.com',
+                'first_name'    => 'Jane',
+                'last_name'     => 'Doe',
+                'password'      => Hash::make('staple-battery-horse-correct')
+            ]
+        );
+
+        # Act
+        $result = UserResource::collection([1 => $user1, 2 => $user2])
+            ->replace([
+                'first_name' => 'Jane'
+            ])
+            ->resolve();
+
+        # Assert
+        $this->assertSame('Jane', $result[0]['first_name']);
+        $this->assertSame('Jane', $result[1]['first_name']);
+    }
+
     public function testCollectionsCanReplaceData(): void
     {
         # Arrange

@@ -35,6 +35,38 @@ class ExcludeTest extends TestCase
         $this->assertArrayNotHasKey('password', $result);
     }
 
+    public function testAnonymousCollectionsCanExcludeData(): void
+    {
+        # Arrange
+        $user1 = new User(
+            [
+                'email_address' => 'john.doe@example.com',
+                'first_name'    => 'John',
+                'last_name'     => 'Doe',
+                'password'      => Hash::make('correct-horse-battery-staple')
+            ]
+        );
+        $user2 = new User(
+            [
+                'email_address' => 'jane.doe@example.com',
+                'first_name'    => 'Jane',
+                'last_name'     => 'Doe',
+                'password'      => Hash::make('staple-battery-horse-correct')
+            ]
+        );
+
+        # Act
+        $result = UserResource::collection([1 => $user1, 2 => $user2])
+            ->exclude('last_name', 'password')
+            ->resolve();
+
+        # Assert
+        $this->assertArrayNotHasKey('last_name', $result[0]);
+        $this->assertArrayNotHasKey('last_name', $result[1]);
+        $this->assertArrayNotHasKey('password', $result[0]);
+        $this->assertArrayNotHasKey('password', $result[1]);
+    }
+
     public function testCollectionsCanExcludeData(): void
     {
         # Arrange
