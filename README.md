@@ -1,172 +1,150 @@
 # Enhanced Resources
-Laravel's API Resources enhanced.
+
+Laravel's API Resources, Enhanced.
+
 ## Installation
+
 ```
 $ composer require sourcetoad/enhanced-resources
 ```
-## Usage
-### Creating an Enhanced Resource
+
+## Basic Usage
+
+To create an enhanced resource you simply extend `Sourcetoad\EnhancedResources\EnhancedResource` instead of `Illuminate\Http\Resources\Json\JsonResource`.
+
 ```php
 <?php
 
-use Illuminate\Http\Resources\Json\JsonResource;
-use Jasonej\EnhancedResources\EnhancedResource;
+use Sourcetoad\EnhancedResources\EnhancedResource;
 
-class UserResource extends EnhancedResource {}
+class ExampleResource extends EnhancedResource
+{
+    //
+}
 ```
 
-### Creating an Enhanced Collection
+### Multiple Formats
+
+With EnhancedResources you can have multiple formats for each resource by adding format methods (`{formatName}Format`) to the resource.
+
+When using a resource with multiple formats you can provide the intended format during resource instantiation:
+
 ```php
 <?php
 
-use Illuminate\Http\Resources\Json\ResourceCollection;
-use Jasonej\EnhancedResources\EnhancedCollection;
+use Sourcetoad\EnhancedResources\EnhancedResource;
 
-class UserCollection extends EnhancedCollection {}
-```
-
-### Appending Attributes
-The default behavior of API resources is to return the model's attributes:
-```php
-<?php
-
-$user = User::find(1);
-
-UserResource::make($user)->response();
-```
-```json
+class ExampleResource extends EnhancedResource
 {
-  "id": 1,
-  "first_name": "John",
-  "last_name": "Doe",
-  "secret": "SUPERSECRET"
-}
-```
-
-
-Appending an attribute allows you to dynamically append attributes via the model's underlying accessors.
-```php
-UserResource::make($user)->append(['name'])->response();
-```
-```json
-{
-  "id": 1,
-  "first_name": "John",
-  "last_name": "Doe",
-  "name": "John Doe", 
-  "secret": "SUPERSECRET"
-}
-```
-
-### Excluding Attributes
-Excluding an attribute allows you to dynamically remove attributes from the resource's output.
-```php
-UserResource::make($user)->exclude(['id', 'secret'])->response();
-```
-```json
-{
-  "first_name": "John",
-  "last_name": "Doe"
-}
-```
-
-### Masking
-Masking allows you to hide the true values of fields. Masking applies to all attributes on a resource that has a mask function.
-```php
-class UserResource extends EnhancedResource
-{
-    public function maskFirstName(string $value): string
+    public function alternativeFormat($request): array
     {
-        return substr($value, 0, 1).'*****';
-    }
-
-    public function maskLastName(string $value): string
-    {
-        return substr($value, 0, 1).'*****';
+        return [
+            //
+        ];    
     }
 }
 
-UserResource::make($user)->mask()->response();
-```
-```json
-{
-  "first_name": "J*****",
-  "last_name": "D*****"
-}
+ExampleResource::make($resource, 'alternative');
+new ExampleResource($resource, 'alternative');
 ```
 
-### Only Attributes
-The only method allows you to restrict a resource's output to only the provided set of attributes.
-```php
-UserResource::make($user)->only(['first_name', 'last_name'])->response();
-```
-```json
-{
-  "first_name": "John",
-  "last_name": "Doe"
-}
-```
-
-### Custom Hooks
-If none of the built in features of Enhanced Resources fits your needs you can register custom hooks on the fly using the `customHook()` method.
+Alternatively, you can provide the desired format after instantiation with the format method:
 
 ```php
-$externalData = [
-    1 => 'some-value'
-];
+<?php
 
-UserResource::make($user)
-    ->customHook(function (UserResource $target, array $data) use ($externalData) {
-        $data['external_data'] = $externalData[$target->resource->getKey()];
+ExampleResource::make($resource)->format('alternative');
+```
+
+### Base Enhancements
+
+EnhancedResources comes with a small set of core enhancements: `append`, `call`, `except`, `only`, and `replace`.
+
+#### Append
+
+The append enhancement allows you to append data from the underlying resource object to the output.
+
+```php
+<?php
+
+ExampleResource::make($resource)->append('key1', 'key2');
+// Output will include the `key1` and `key2` keys even if they aren't included in the format.
+```
+
+#### Call
+
+The call enhancement allows you to use one off enhancements using a callable.
+
+```php
+<?php
+
+ExampleResource::make($resource)
+    ->call(function (ExampleResource $resource, array $data) {
+        // Alter $data
 
         return $data;
-    })
-    ->response();
-```
-```json
-{
-  "id": 1,
-  "first_name": "John",
-  "last_name": "Doe",
-  "secret": "SUPERSECRET",
-  "external_data": "some-value"
-}
+    });
 ```
 
-## Adding New Enhancements
-Enhanced resources are quite extensible. In order to add an additional piece of behavior you just create a trait and have your resource/collection class use it.
+#### Exclude
+
+The exclude enhancement allows you to exclude data from the output.
 
 ```php
 <?php
 
-trait SomeNewEnhancement
-{
-    protected static function bootSomeNewEnhancement()
-    {
-        static::registerHook(function ($target, array $data) {
-            // Apply your changes to the resolved data here
-        });
+ExampleResource::make($resource)->exclude('key1', 'key2');
+```
 
-        static::registerMap(function ($resourceCollection) {
-            // Map your enhancement behavior to the underlying resource here
-        });
-    }
-}
+#### Only
 
-class ExtraEnhancedResource extends EnhancedResource
-{
-    use SomeNewEnhancement;
+The only enhancement allows to limit the data to a given set of keys.
 
-    protected static $anonymousResourceCollectionClass = ExtraEnhancedAnonymousResourceCollection::class;
-}
+```php
+<?php
 
-class ExtraEnhancedCollection extends EnhancedCollection
-{
-    use SomeNewEnhancement;
-}
+ExampleResource::make($resource)->only('key1', 'key2');
+```
 
-class ExtraEnhancedAnonymousResourceCollection extends ExtraEnhancedCollection
-{
-    use SomeNewEnhancement;
-}
+#### Replace
+
+The replace enhancement allows you to replace the dataset outright using `array_replace` or `array_replace_recursive`.
+
+```php
+<?php
+
+ExampleResource::make($resource)->replace([/* New Data */]); // recursive
+ExampleResource::make($resource)->replace([/* New Data */], false); // not recursive
+```
+
+
+### Collections
+
+Enhanced collections work by mapping the format and enhancement calls to each resource contained within.
+As a result enhanced collections only work when they collect enhanced resources.
+The easiest way to handle this is to set the `$collects` property on the enhanced collection or ensure that you're
+following the standard convention for resource and collection naming so that the `collects()` method can detect it.
+
+## Advanced Usage
+
+EnhancedResources allows you to enhance your resources beyond the included resources.
+
+### Custom Enhancements
+
+With the `EnhancementManager` you can easily add your own custom enhancements by just providing something `callable`, a name, and (optionally) a FQN for an `EnhancedResource`.
+
+```php
+<?php
+
+use Sourcetoad\EnhancedResources\EnhancedResource;
+use Sourcetoad\EnhancedResources\EnhancementManager;
+use Sourcetoad\EnhancedResources\Support\Facades\ResourceEnhancements;
+
+$exampleEnhancement = fn(EnhancedResource $resource, $data) => $data;
+
+// Resolve the Enhancement Manager out of the container.
+resolve(EnhancementManager::class)->register('example', $exampleEnhancement);
+
+// Use the ResourceEnhancements facade.
+ResourceEnhancements::register('example', fn(EnhancedResource $resource, $data) => $data);
 ```

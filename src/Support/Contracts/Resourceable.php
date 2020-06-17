@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Sourcetoad\EnhancedResources\Support\Contracts;
 
 use Sourcetoad\EnhancedResources\EnhancedResource;
