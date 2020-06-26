@@ -16,7 +16,7 @@ use Sourcetoad\EnhancedResources\Exceptions\UndefinedFormatException;
  * @method $this only(string ...$keys)
  * @method $this replace(array $data, bool $recursive = false)
  */
-abstract class EnhancedResource extends JsonResource
+class EnhancedResource extends JsonResource
 {
     protected array $enhancements = [];
     protected ?string $format = null;
