@@ -8,7 +8,7 @@ use Sourcetoad\EnhancedResources\EnhancedResource;
 
 trait Resourceable
 {
-    public function toResource(?string $resourceClass): EnhancedResource
+    public function toResource(?string $resourceClass = null): EnhancedResource
     {
         $resourceClass ??= static::$resourceClass ?? EnhancedResource::class;
 
