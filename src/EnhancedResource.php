@@ -96,7 +96,7 @@ abstract class EnhancedResource extends JsonResource
     protected function getFormatMethodName(): ?string
     {
         if ($this->format === null) {
-            return null;
+            return method_exists($this, 'baseFormat') ? 'baseFormat' : null;
         }
 
         return Str::camel($this->format . 'Format');
