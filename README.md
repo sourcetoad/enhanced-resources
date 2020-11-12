@@ -19,7 +19,12 @@ use Sourcetoad\EnhancedResources\EnhancedResource;
 
 class ExampleResource extends EnhancedResource
 {
-    //
+    public function baseFormat($request): array
+    {
+        return [
+            //
+        ];
+    }
 }
 ```
 
