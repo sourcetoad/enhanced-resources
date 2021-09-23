@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Sourcetoad\EnhancedResources\Exceptions;
 
-use Exception;
+use InvalidArgumentException;
 
-class UndefinedFormatException extends Exception
+class UndefinedFormatException extends InvalidArgumentException
 {
     public function __construct(string $resourceClass, string $format)
     {
