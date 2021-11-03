@@ -27,6 +27,9 @@ class FormatDefinitionTest extends TestCase
     public function nameDetectionProvider(): array
     {
         $subject = new class {
+            #[Format('bar')]
+            public function barFormat() {}
+
             #[Format]
             public function foo() {}
         };
@@ -37,6 +40,12 @@ class FormatDefinitionTest extends TestCase
                 'assertions' => function (FormatDefinition $definition) {
                     $this->assertSame('foo', $definition->name());
                 },
+            ],
+            'explicit name' => [
+                'method' => new ReflectionMethod($subject, 'barFormat'),
+                'assertions' => function (FormatDefinition $definition) {
+                    $this->assertSame('bar', $definition->name());
+                }
             ],
         ];
     }
