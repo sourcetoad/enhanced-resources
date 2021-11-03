@@ -6,7 +6,7 @@ namespace Sourcetoad\EnhancedResources\Formatting\Attributes;
 
 use Attribute;
 
-#[Attribute(Attribute::TARGET_METHOD)]
+#[Attribute(Attribute::IS_REPEATABLE | Attribute::TARGET_METHOD)]
 class Format
 {
     public function __construct(

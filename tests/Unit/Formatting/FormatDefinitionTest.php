@@ -30,7 +30,7 @@ class FormatDefinitionTest extends TestCase
             #[Format('bar')]
             public function barFormat() {}
 
-            #[Format]
+            #[Format, Format('fooAlias')]
             public function foo() {}
         };
 
@@ -45,6 +45,12 @@ class FormatDefinitionTest extends TestCase
                 'method' => new ReflectionMethod($subject, 'barFormat'),
                 'assertions' => function (FormatDefinition $definition) {
                     $this->assertSame('bar', $definition->name());
+                }
+            ],
+            'alias' => [
+                'method' => new ReflectionMethod($subject, 'foo'),
+                'assertions' => function (FormatDefinition $definition) {
+                    $this->assertContains('fooAlias', $definition->names());
                 }
             ],
         ];
