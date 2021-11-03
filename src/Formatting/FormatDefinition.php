@@ -8,10 +8,12 @@ use Illuminate\Support\Collection;
 use ReflectionAttribute;
 use ReflectionMethod;
 use Sourcetoad\EnhancedResources\Formatting\Attributes\Format;
+use Sourcetoad\EnhancedResources\Formatting\Attributes\IsDefault;
 
 class FormatDefinition
 {
     protected Collection $formats;
+    protected bool $isExplicitlyDefault;
     protected ReflectionMethod $reflection;
 
     public function __construct(ReflectionMethod $reflection)
@@ -20,6 +22,12 @@ class FormatDefinition
 
         $this->formats = (new Collection($this->reflection->getAttributes(Format::class)))
             ->map(fn(ReflectionAttribute $attribute) => $attribute->newInstance());
+        $this->isExplicitlyDefault = !empty($this->reflection->getAttributes(IsDefault::class));
+    }
+
+    public function isExplicitlyDefault(): bool
+    {
+        return $this->isExplicitlyDefault;
     }
 
     public function name(): string
