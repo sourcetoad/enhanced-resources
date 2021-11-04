@@ -33,13 +33,13 @@ class FormatManagerTest extends TestCase
     }
 
     /** @dataProvider formatNameCollisionProvider */
-    public function test_format_name_collisions_are_prevented(object $object): void
+    public function test_format_name_collisions_are_prevented(object $subject): void
     {
         # Expect
         $this->expectException(FormatNameCollisionException::class);
 
         # Act
-        new FormatManager($object);
+        new FormatManager($subject);
     }
 
     # region Data Providers
