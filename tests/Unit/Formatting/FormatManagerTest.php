@@ -42,7 +42,40 @@ class FormatManagerTest extends TestCase
         new FormatManager($subject);
     }
 
+    /** @dataProvider defaultFormatProvider */
+    public function test_default_format_is_detected_properly(object $subject, string $expectedFormat): void
+    {
+        # Act
+        $manager = new FormatManager($subject);
+
+        # Assert
+        $this->assertSame($expectedFormat, $manager->default()->name());
+    }
+
     # region Data Providers
+
+    public function defaultFormatProvider(): array
+    {
+        return [
+            'implicit default' => [
+                'object' => new class {
+                    #[Format]
+                    public function foo() {}
+                },
+                'foo',
+            ],
+            'explicit default' => [
+                'object' => new class {
+                    #[Format]
+                    public function bar() {}
+
+                    #[IsDefault, Format]
+                    public function foo() {}
+                },
+                'foo',
+            ],
+        ];
+    }
 
     public function formatNameCollisionProvider(): array
     {
