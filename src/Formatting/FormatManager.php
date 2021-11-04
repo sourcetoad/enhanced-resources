@@ -9,6 +9,7 @@ use Illuminate\Support\Collection;
 use ReflectionMethod;
 use ReflectionObject;
 use Sourcetoad\EnhancedResources\Exceptions\FormatNameCollisionException;
+use Sourcetoad\EnhancedResources\Formatting\Attributes\Format;
 
 class FormatManager
 {
@@ -21,7 +22,7 @@ class FormatManager
         $this->reflection = new ReflectionObject($subject);
         $this->subject = $subject;
         $this->formats = (new Collection($this->reflection->getMethods()))
-            ->filter(fn(ReflectionMethod $method) => !empty($method->getAttributes()))
+            ->filter(fn(ReflectionMethod $method) => !empty($method->getAttributes(Format::class)))
             ->mapInto(FormatDefinition::class)
             ->tap(Closure::fromCallable([$this, 'preventFormatNameCollisions']))
             ->flatMap(fn(FormatDefinition $definition) => $definition->names()
