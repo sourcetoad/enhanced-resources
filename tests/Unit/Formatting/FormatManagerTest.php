@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Sourcetoad\EnhancedResources\Tests\Unit\Formatting;
 
+use Sourcetoad\EnhancedResources\Exceptions\FormatNameCollisionException;
 use Sourcetoad\EnhancedResources\Formatting\Attributes\Format;
 use Sourcetoad\EnhancedResources\Formatting\Attributes\IsDefault;
 use Sourcetoad\EnhancedResources\Formatting\FormatDefinition;
@@ -30,4 +31,42 @@ class FormatManagerTest extends TestCase
         $this->assertContainsOnlyInstancesOf(FormatDefinition::class, $formats);
         $this->assertSame(['bar', 'foo', 'fooAlias'], $formats->keys()->all());
     }
+
+    /** @dataProvider formatNameCollisionProvider */
+    public function test_format_name_collisions_are_prevented(object $object): void
+    {
+        # Expect
+        $this->expectException(FormatNameCollisionException::class);
+
+        # Act
+        new FormatManager($object);
+    }
+
+    # region Data Providers
+
+    public function formatNameCollisionProvider(): array
+    {
+        return [
+            'explicit/explicit' => [
+                'object' => new class {
+                    #[Format('foo')]
+                    public function formatOne() {}
+
+                    #[Format('foo')]
+                    public function formatTwo() {}
+                },
+            ],
+            'explicit/implicit' => [
+                'object' => new class {
+                    #[Format]
+                    public function foo() {}
+
+                    #[Format('foo')]
+                    public function formatTwo() {}
+                },
+            ],
+        ];
+    }
+
+    # endregion
 }
