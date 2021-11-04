@@ -9,6 +9,7 @@ use Illuminate\Support\Collection;
 use ReflectionMethod;
 use ReflectionObject;
 use Sourcetoad\EnhancedResources\Exceptions\FormatNameCollisionException;
+use Sourcetoad\EnhancedResources\Exceptions\MultipleDefaultFormatsException;
 use Sourcetoad\EnhancedResources\Formatting\Attributes\Format;
 
 class FormatManager
@@ -33,6 +34,7 @@ class FormatManager
                 ->mapWithKeys(fn(string $name) => [$name => $definition]));
 
         $this->default = $definitions->filter(fn(FormatDefinition $definition) => $definition->isExplicitlyDefault())
+            ->tap(Closure::fromCallable([$this, 'preventMultipleDefaultFormats']))
             ->when($definitions->containsOneItem(), fn(Collection $defaults) => $defaults->push($definitions->first()))
             ->first();
     }
@@ -56,5 +58,12 @@ class FormatManager
                 $this->subject,
                 $collisions->keys()->first(),
             ));
+    }
+
+    protected function preventMultipleDefaultFormats(Collection $defaultMethods): void
+    {
+        if ($defaultMethods->count() > 1) {
+            throw new MultipleDefaultFormatsException($this->subject);
+        }
     }
 }

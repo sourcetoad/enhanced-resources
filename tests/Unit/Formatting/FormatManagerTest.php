@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Sourcetoad\EnhancedResources\Tests\Unit\Formatting;
 
 use Sourcetoad\EnhancedResources\Exceptions\FormatNameCollisionException;
+use Sourcetoad\EnhancedResources\Exceptions\MultipleDefaultFormatsException;
 use Sourcetoad\EnhancedResources\Formatting\Attributes\Format;
 use Sourcetoad\EnhancedResources\Formatting\Attributes\IsDefault;
 use Sourcetoad\EnhancedResources\Formatting\FormatDefinition;
@@ -50,6 +51,24 @@ class FormatManagerTest extends TestCase
 
         # Assert
         $this->assertSame($expectedFormat, $manager->default()->name());
+    }
+
+    public function test_multiple_default_formats_are_prevented(): void
+    {
+        # Expect
+        $this->expectException(MultipleDefaultFormatsException::class);
+
+        # Arrange
+        $subject = new class {
+            #[IsDefault, Format]
+            public function bar() {}
+
+            #[IsDefault, Format]
+            public function foo() {}
+        };
+
+        # Act
+        new FormatManager($subject);
     }
 
     # region Data Providers
