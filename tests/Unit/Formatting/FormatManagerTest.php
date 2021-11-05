@@ -84,6 +84,19 @@ class FormatManagerTest extends TestCase
         $this->assertContains($expectedFormat, $manager->current()->names());
     }
 
+    /** @dataProvider formatExistenceProvider */
+    public function test_checking_for_a_formats_existence(object $subject, string $formatName, bool $expectedResult): void
+    {
+        # Arrange
+        $manager = new FormatManager($subject);
+
+        # Act
+        $actualResult = $manager->hasFormat($formatName);
+
+        # Assert
+        $this->assertSame($expectedResult, $actualResult);
+    }
+
     # region Data Providers
 
     public function currentFormatProvider(): array
@@ -158,6 +171,52 @@ class FormatManagerTest extends TestCase
                     public function foo() {}
                 },
                 'foo',
+            ],
+        ];
+    }
+
+    public function formatExistenceProvider(): array
+    {
+        return [
+            'implicit format exists' => [
+                'subject' => new class {
+                    #[Format]
+                    public function foo() {}
+                },
+                'formatName' => 'foo',
+                'expectedResult' => true,
+            ],
+            'explicit format exists' => [
+                'subject' => new class {
+                    #[Format('foobar')]
+                    public function foo() {}
+                },
+                'formatName' => 'foobar',
+                'expectedResult' => true,
+            ],
+            'alias format exists' => [
+                'subject' => new class {
+                    #[Format, Format('foobar')]
+                    public function foo() {}
+                },
+                'formatName' => 'foobar',
+                'expectedResult' => true,
+            ],
+            'implicit name does not exist if only explicitly named' => [
+                'subject' => new class {
+                    #[Format('foobar')]
+                    public function foo() {}
+                },
+                'formatName' => 'foo',
+                'expectedResult' => false,
+            ],
+            'non-existent format does not exist' => [
+                'subject' => new class {
+                    #[Format]
+                    public function foo() {}
+                },
+                'formatName' => 'bar',
+                'expectedResult' => false,
             ],
         ];
     }

@@ -62,6 +62,11 @@ class FormatManager
         return $this->formats;
     }
 
+    public function hasFormat(string $name): bool
+    {
+        return $this->formats->has($name);
+    }
+
     public function select(string $name): static
     {
         $this->current = $name;
