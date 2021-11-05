@@ -111,6 +111,21 @@ class FormatManagerTest extends TestCase
         $this->assertSame(!$expectedResult, $actualResult);
     }
 
+    public function test_selecting_a_non_existent_format_fails(): void
+    {
+        # Expect
+        $this->expectException(InvalidFormatException::class);
+
+        # Arrange
+        $manager = new FormatManager(new class {
+            #[Format]
+            public function foo() {}
+        });
+
+        # Act
+        $manager->select('bar');
+    }
+
     # region Data Providers
 
     public function currentFormatProvider(): array

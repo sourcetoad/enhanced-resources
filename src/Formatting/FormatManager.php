@@ -75,6 +75,10 @@ class FormatManager
 
     public function select(string $name): static
     {
+        if ($this->lacksFormat($name)) {
+            throw new InvalidFormatException($this->subject, $name);
+        }
+
         $this->current = $name;
 
         return $this;
