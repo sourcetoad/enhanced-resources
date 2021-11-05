@@ -9,6 +9,7 @@ use Illuminate\Support\Collection;
 use ReflectionMethod;
 use ReflectionObject;
 use Sourcetoad\EnhancedResources\Exceptions\FormatNameCollisionException;
+use Sourcetoad\EnhancedResources\Exceptions\InvalidFormatException;
 use Sourcetoad\EnhancedResources\Exceptions\MultipleDefaultFormatsException;
 use Sourcetoad\EnhancedResources\Formatting\Attributes\Format;
 
@@ -65,6 +66,11 @@ class FormatManager
     public function hasFormat(string $name): bool
     {
         return $this->formats->has($name);
+    }
+
+    public function lacksFormat(string $name): bool
+    {
+        return !$this->hasFormat($name);
     }
 
     public function select(string $name): static

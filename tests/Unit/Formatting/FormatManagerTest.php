@@ -6,6 +6,7 @@ namespace Sourcetoad\EnhancedResources\Tests\Unit\Formatting;
 
 use Closure;
 use Sourcetoad\EnhancedResources\Exceptions\FormatNameCollisionException;
+use Sourcetoad\EnhancedResources\Exceptions\InvalidFormatException;
 use Sourcetoad\EnhancedResources\Exceptions\MultipleDefaultFormatsException;
 use Sourcetoad\EnhancedResources\Formatting\Attributes\Format;
 use Sourcetoad\EnhancedResources\Formatting\Attributes\IsDefault;
@@ -95,6 +96,19 @@ class FormatManagerTest extends TestCase
 
         # Assert
         $this->assertSame($expectedResult, $actualResult);
+    }
+
+    /** @dataProvider formatExistenceProvider */
+    public function test_checking_for_a_formats_non_existence(object $subject, string $formatName, bool $expectedResult): void
+    {
+        # Arrange
+        $manager = new FormatManager($subject);
+
+        # Act
+        $actualResult = $manager->lacksFormat($formatName);
+
+        # Assert
+        $this->assertSame(!$expectedResult, $actualResult);
     }
 
     # region Data Providers
