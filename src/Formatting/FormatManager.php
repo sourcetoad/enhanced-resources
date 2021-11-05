@@ -14,6 +14,7 @@ use Sourcetoad\EnhancedResources\Formatting\Attributes\Format;
 
 class FormatManager
 {
+    protected ?string $current;
     protected ?FormatDefinition $default;
     protected Collection $formats;
     protected ReflectionObject $reflection;
@@ -37,6 +38,18 @@ class FormatManager
             ->tap(Closure::fromCallable([$this, 'preventMultipleDefaultFormats']))
             ->when($definitions->containsOneItem(), fn(Collection $defaults) => $defaults->push($definitions->first()))
             ->first();
+
+        $this->current = $this->default?->name();
+    }
+
+    public function current(): ?FormatDefinition
+    {
+        return $this->formats->get($this->current);
+    }
+
+    public function currentName(): ?string
+    {
+        return $this->current;
     }
 
     public function default(): FormatDefinition
@@ -47,6 +60,13 @@ class FormatManager
     public function formats(): Collection
     {
         return $this->formats;
+    }
+
+    public function select(string $name): static
+    {
+        $this->current = $name;
+
+        return $this;
     }
 
     protected function preventFormatNameCollisions(Collection $formatMethods): void

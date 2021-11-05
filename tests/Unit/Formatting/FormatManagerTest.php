@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Sourcetoad\EnhancedResources\Tests\Unit\Formatting;
 
+use Closure;
 use Sourcetoad\EnhancedResources\Exceptions\FormatNameCollisionException;
 use Sourcetoad\EnhancedResources\Exceptions\MultipleDefaultFormatsException;
 use Sourcetoad\EnhancedResources\Formatting\Attributes\Format;
@@ -71,7 +72,72 @@ class FormatManagerTest extends TestCase
         new FormatManager($subject);
     }
 
+    /** @dataProvider currentFormatProvider */
+    public function test_current_format_can_be_set_and_retrieved(Closure $setup, string $expectedFormat): void
+    {
+        # Act
+        /** @var FormatManager $manager */
+        $manager = $setup();
+
+        # Assert
+        $this->assertSame($expectedFormat, $manager->currentName());
+        $this->assertContains($expectedFormat, $manager->current()->names());
+    }
+
     # region Data Providers
+
+    public function currentFormatProvider(): array
+    {
+        return [
+            'implicit default is used as the initial current format' => [
+                fn() => new FormatManager(new class {
+                    #[Format]
+                    public function foo() {}
+                }),
+                'foo',
+            ],
+            'explicit default is used as the initial current format' => [
+                fn() => new FormatManager(new class {
+                    #[Format]
+                    public function bar() {}
+
+                    #[IsDefault, Format]
+                    public function foo() {}
+                }),
+                'foo',
+            ],
+            'selected by implicit name' => [
+                fn() => (new FormatManager(new class {
+                    #[Format]
+                    public function bar() {}
+
+                    #[IsDefault, Format]
+                    public function foo() {}
+                }))->select('bar'),
+                'bar',
+            ],
+            'selected by explicit name' => [
+                fn() => (new FormatManager(new class {
+                    #[Format('foobar')]
+                    public function bar() {}
+
+                    #[IsDefault, Format]
+                    public function foo() {}
+                }))->select('foobar'),
+                'foobar',
+            ],
+            'selected by alias' => [
+                fn() => (new FormatManager(new class {
+                    #[Format, Format('foobar')]
+                    public function bar() {}
+
+                    #[IsDefault, Format]
+                    public function foo() {}
+                }))->select('foobar'),
+                'foobar',
+            ],
+        ];
+    }
 
     public function defaultFormatProvider(): array
     {
