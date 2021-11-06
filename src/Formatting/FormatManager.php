@@ -35,10 +35,7 @@ class FormatManager
             ->flatMap(fn(FormatDefinition $definition) => $definition->names()
                 ->mapWithKeys(fn(string $name) => [$name => $definition]));
 
-        $this->default = $definitions->filter(fn(FormatDefinition $definition) => $definition->isExplicitlyDefault())
-            ->tap(Closure::fromCallable([$this, 'preventMultipleDefaultFormats']))
-            ->when($definitions->containsOneItem(), fn(Collection $defaults) => $defaults->push($definitions->first()))
-            ->first();
+        $this->default = $this->determineDefault($definitions);
 
         $this->current = $this->default?->name();
     }
@@ -82,6 +79,29 @@ class FormatManager
         $this->current = $name;
 
         return $this;
+    }
+
+    protected function determineDefault(Collection $definitions): ?FormatDefinition
+    {
+        if ($definitions->containsOneItem()) {
+            return $definitions->first();
+        }
+
+        $definitions = $definitions->filter(fn(FormatDefinition $definition) => $definition->isExplicitlyDefault());
+        $class = $this->reflection;
+
+        do {
+            $default = $definitions
+                ->filter(function (FormatDefinition $definition) use ($class) {
+                    return $definition->reflection()->getDeclaringClass()->getName() === $class->getName();
+                })
+                ->tap(Closure::fromCallable([$this, 'preventMultipleDefaultFormats']))
+                ->first();
+
+            $class = $class->getParentClass();
+        } while($class && $default === null);
+
+        return $default;
     }
 
     protected function preventFormatNameCollisions(Collection $formatMethods): void

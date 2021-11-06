@@ -201,6 +201,17 @@ class FormatManagerTest extends TestCase
                 },
                 'foo',
             ],
+            'inherited default' => [
+                'object' => new class extends ParentClass {},
+                'foo',
+            ],
+            'overridden default' => [
+                'object' => new class extends ParentClass {
+                    #[IsDefault, Format]
+                    public function bar() {}
+                },
+                'bar',
+            ],
         ];
     }
 
@@ -275,4 +286,9 @@ class FormatManagerTest extends TestCase
     }
 
     # endregion
+}
+
+class ParentClass {
+    #[IsDefault, Format]
+    public function foo() {}
 }

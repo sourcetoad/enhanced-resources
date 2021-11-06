@@ -40,4 +40,9 @@ class FormatDefinition
         return $this->formats->map(fn(Format $format) => $format->name() ?? $this->reflection->getName())
             ->unique();
     }
+
+    public function reflection(): ReflectionMethod
+    {
+        return $this->reflection;
+    }
 }
