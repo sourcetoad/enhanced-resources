@@ -24,6 +24,15 @@ abstract class Resource extends JsonResource
         }
     }
 
+    public static function collection($resource): AnonymousResourceCollection
+    {
+        return tap(new AnonymousResourceCollection($resource, static::class), function ($collection) {
+            if (property_exists(static::class, 'preserveKeys')) {
+                $collection->preserveKeys = (new static([]))->preserveKeys === true;
+            }
+        });
+    }
+
     public function format(string $name): static
     {
         $this->formatManager->select($name);
