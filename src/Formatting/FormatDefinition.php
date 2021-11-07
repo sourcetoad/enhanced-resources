@@ -25,6 +25,11 @@ class FormatDefinition
         $this->isExplicitlyDefault = !empty($this->reflection->getAttributes(IsDefault::class));
     }
 
+    public function invoke(object $object, $request): mixed
+    {
+        return $this->reflection->invoke($object, $request);
+    }
+
     public function isExplicitlyDefault(): bool
     {
         return $this->isExplicitlyDefault;
