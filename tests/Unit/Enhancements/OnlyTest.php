@@ -12,8 +12,8 @@ use Sourcetoad\EnhancedResources\Tests\TestCase;
 
 class OnlyTest extends TestCase
 {
-    /** @dataProvider onlyProvider */
-    public function test_except_enhancement_can_be_applied_to_resources(
+    /** @dataProvider resourceProvider */
+    public function test_only_enhancement_can_be_applied_to_resources(
         Resource $resource,
         array $expectedData,
     ): void {
@@ -26,7 +26,7 @@ class OnlyTest extends TestCase
 
     # region Data Providers
 
-    public function onlyProvider(): array
+    public function resourceProvider(): array
     {
         return [
             'applied manually' => [

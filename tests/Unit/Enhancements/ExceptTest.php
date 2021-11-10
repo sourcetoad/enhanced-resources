@@ -12,7 +12,7 @@ use Sourcetoad\EnhancedResources\Tests\TestCase;
 
 class ExceptTest extends TestCase
 {
-    /** @dataProvider exceptProvider */
+    /** @dataProvider resourceProvider */
     public function test_except_enhancement_can_be_applied_to_resources(
         Resource $resource,
         array $expectedData,
@@ -26,7 +26,7 @@ class ExceptTest extends TestCase
 
     # region Data Providers
 
-    public function exceptProvider(): array
+    public function resourceProvider(): array
     {
         return [
             'applied manually' => [
