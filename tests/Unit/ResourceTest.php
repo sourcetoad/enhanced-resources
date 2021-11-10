@@ -4,12 +4,15 @@ declare(strict_types=1);
 
 namespace Sourcetoad\EnhancedResources\Tests\Unit;
 
+use Illuminate\Support\Collection;
 use Sourcetoad\EnhancedResources\Exceptions\NoDefinedFormatsException;
 use Sourcetoad\EnhancedResources\Exceptions\NoFormatSelectedException;
 use Sourcetoad\EnhancedResources\Formatting\Attributes\Format;
 use Sourcetoad\EnhancedResources\Formatting\Attributes\IsDefault;
 use Sourcetoad\EnhancedResources\Resource;
+use Sourcetoad\EnhancedResources\Tests\ImplicitDefaultResource;
 use Sourcetoad\EnhancedResources\Tests\TestCase;
+use stdClass;
 
 class ResourceTest extends TestCase
 {
@@ -45,6 +48,16 @@ class ResourceTest extends TestCase
             #[Format]
             public function foo() {}
         })->toArray(request());
+    }
+
+    /** @dataProvider modificationProvider */
+    public function test_resource_can_be_modified_dynamically(Resource $resource, array $expectedData): void
+    {
+        # Act
+        $actualData = $resource->toArray(request());
+
+        # Assert
+        $this->assertSame($expectedData, $actualData);
     }
 
     # region Data Providers
@@ -130,6 +143,151 @@ class ResourceTest extends TestCase
                     'first_name' => 'John',
                     'id' => 1,
                     'last_name' => 'Doe',
+                ],
+            ],
+        ];
+    }
+
+    public function modificationProvider(): array
+    {
+        $john = new stdClass;
+        $john->id = 1;
+        $john->firstName = 'John';
+        $john->lastName = 'Doe';
+
+        return [
+            'array modification adding data' => [
+                'resource' => ImplicitDefaultResource::make($john)
+                    ->modify(['middle_initial' => 'A.']),
+                'expectedData' => [
+                    'first_name' => 'John',
+                    'id' => 1,
+                    'last_name' => 'Doe',
+                    'middle_initial' => 'A.',
+                ],
+            ],
+            'array modification overwriting data' => [
+                'resource' => ImplicitDefaultResource::make($john)
+                    ->modify(['first_name' => 'Jon']),
+                'expectedData' => [
+                    'first_name' => 'Jon',
+                    'id' => 1,
+                    'last_name' => 'Doe',
+                ],
+            ],
+            'closure modification adding data' => [
+                'resource' => ImplicitDefaultResource::make($john)
+                    ->modify(fn(array $data) => array_merge($data, ['middle_initial' => 'A.'])),
+                'expectedData' => [
+                    'first_name' => 'John',
+                    'id' => 1,
+                    'last_name' => 'Doe',
+                    'middle_initial' => 'A.',
+                ],
+            ],
+            'closure modification overwriting data' => [
+                'resource' => ImplicitDefaultResource::make($john)
+                    ->modify(fn(array $data) => array_merge($data, ['first_name' => 'Jon'])),
+                'expectedData' => [
+                    'first_name' => 'Jon',
+                    'id' => 1,
+                    'last_name' => 'Doe',
+                ],
+            ],
+            'closure modification completely overwriting data' => [
+                'resource' => ImplicitDefaultResource::make($john)
+                    ->modify(fn() => ['id' => 1]),
+                'expectedData' => ['id' => 1],
+            ],
+            'closure modification accessing resource' => [
+                'resource' => ImplicitDefaultResource::make($john)
+                    ->modify(function (array $data, ImplicitDefaultResource $resource) {
+                        $data['id'] = $resource->resource->id * 2;
+
+                        return $data;
+                    }),
+                'expectedData' => [
+                    'first_name' => 'John',
+                    'id' => 2,
+                    'last_name' => 'Doe',
+                ],
+            ],
+            'invokable modification adding data' => [
+                'resource' => ImplicitDefaultResource::make($john)
+                    ->modify(new class {
+                        public function __invoke(array $data): array
+                        {
+                            return array_merge($data, ['middle_initial' => 'A.']);
+                        }
+                    }),
+                'expectedData' => [
+                    'first_name' => 'John',
+                    'id' => 1,
+                    'last_name' => 'Doe',
+                    'middle_initial' => 'A.',
+                ],
+            ],
+            'invokable modification overwriting data' => [
+                'resource' => ImplicitDefaultResource::make($john)
+                    ->modify(new class {
+                        public function __invoke(array $data): array
+                        {
+                            return array_merge($data, ['first_name' => 'Jon']);
+                        }
+                    }),
+                'expectedData' => [
+                    'first_name' => 'Jon',
+                    'id' => 1,
+                    'last_name' => 'Doe',
+                ],
+            ],
+            'invokable modification completely overwriting data' => [
+                'resource' => ImplicitDefaultResource::make($john)
+                    ->modify(new class {
+                        public function __invoke(array $data): array
+                        {
+                            return ['id' => 1];
+                        }
+                    }),
+                'expectedData' => ['id' => 1],
+            ],
+            'invokable modification accessing resource' => [
+                'resource' => ImplicitDefaultResource::make($john)
+                    ->modify(new class {
+                        public function __invoke(array $data, ImplicitDefaultResource $resource): array
+                        {
+                            $data['id'] = $resource->resource->id * 2;
+
+                            return $data;
+                        }
+                    }),
+                'expectedData' => [
+                    'first_name' => 'John',
+                    'id' => 2,
+                    'last_name' => 'Doe',
+                ],
+            ],
+            'modifications can be chained' => [
+                'resource' => ImplicitDefaultResource::make($john)
+                    ->modify(['middle_initial' => 'A.'])
+                    ->modify(function (array $data): array {
+                        $data['first_name'] = 'Jon';
+
+                        return $data;
+                    })
+                    ->modify(new class {
+                        public function __invoke(array $data, ImplicitDefaultResource $resource): array
+                        {
+                            $data['id'] = $resource->resource->id * 2;
+
+                            return $data;
+                        }
+                    }),
+                'expectedData' => [
+                    'first_name' => 'Jon',
+                    'id' => 2,
+                    'last_name' => 'Doe',
+                    'middle_initial' => 'A.',
                 ],
             ],
         ];
