@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Sourcetoad\EnhancedResources\Tests\Unit;
 
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Pagination\Paginator;
 use Sourcetoad\EnhancedResources\Exceptions\CannotEnhanceBaseResourcesException;
 use Sourcetoad\EnhancedResources\ResourceCollection;
 use Sourcetoad\EnhancedResources\Tests\ExplicitDefaultResource;
@@ -336,6 +338,68 @@ class ResourceCollectionTest extends TestCase
             ],
             'modifications can be chained' => [
                 'resource' => ImplicitDefaultCollection::make([$john, $jane])
+                    ->modify(['middle_initial' => 'A.'])
+                    ->modify(function (array $data): array {
+                        $data['first_name'] = 'Jon';
+
+                        return $data;
+                    })
+                    ->modify(new class {
+                        public function __invoke(array $data, ImplicitDefaultResource $resource): array
+                        {
+                            $data['id'] = $resource->resource->id * 2;
+
+                            return $data;
+                        }
+                    }),
+                'expectedData' => [
+                    [
+                        'first_name' => 'Jon',
+                        'id' => 2,
+                        'last_name' => 'Doe',
+                        'middle_initial' => 'A.',
+                    ],
+                    [
+                        'first_name' => 'Jon',
+                        'id' => 4,
+                        'last_name' => 'Doe',
+                        'middle_initial' => 'A.',
+                    ],
+                ],
+            ],
+            'modifications can be applied to basic paginator' => [
+                'resource' => ImplicitDefaultCollection::make(new Paginator([$john, $jane], 2))
+                    ->modify(['middle_initial' => 'A.'])
+                    ->modify(function (array $data): array {
+                        $data['first_name'] = 'Jon';
+
+                        return $data;
+                    })
+                    ->modify(new class {
+                        public function __invoke(array $data, ImplicitDefaultResource $resource): array
+                        {
+                            $data['id'] = $resource->resource->id * 2;
+
+                            return $data;
+                        }
+                    }),
+                'expectedData' => [
+                    [
+                        'first_name' => 'Jon',
+                        'id' => 2,
+                        'last_name' => 'Doe',
+                        'middle_initial' => 'A.',
+                    ],
+                    [
+                        'first_name' => 'Jon',
+                        'id' => 4,
+                        'last_name' => 'Doe',
+                        'middle_initial' => 'A.',
+                    ],
+                ],
+            ],
+            'modifications can be applied to length aware paginator' => [
+                'resource' => ImplicitDefaultCollection::make(new LengthAwarePaginator([$john, $jane], 2, 2))
                     ->modify(['middle_initial' => 'A.'])
                     ->modify(function (array $data): array {
                         $data['first_name'] = 'Jon';
