@@ -7,6 +7,7 @@ namespace Sourcetoad\EnhancedResources\Tests\Unit;
 use Sourcetoad\EnhancedResources\AnonymousResourceCollection;
 use Sourcetoad\EnhancedResources\ResourceCollection;
 use Sourcetoad\EnhancedResources\Tests\ExplicitDefaultResource;
+use Sourcetoad\EnhancedResources\Tests\ImplicitDefaultCollection;
 use Sourcetoad\EnhancedResources\Tests\ImplicitDefaultResource;
 use Sourcetoad\EnhancedResources\Tests\TestCase;
 use stdClass;
@@ -35,6 +36,28 @@ class AnonymousResourceCollectionTest extends TestCase
 
         # Assert
         $this->assertSame($expectedData, $actualData);
+    }
+
+    public function test_response_status_can_be_set(): void
+    {
+        # Arrange
+        $john = new stdClass;
+        $john->id = 1;
+        $john->firstName = 'John';
+        $john->lastName = 'Doe';
+
+        $jane = new stdClass;
+        $jane->id = 2;
+        $jane->firstName = 'Jane';
+        $jane->lastName = 'Doe';
+
+        $collection = ImplicitDefaultResource::collection([$john, $jane]);
+
+        # Act
+        $response = $collection->setResponseStatus(201)->response();
+
+        # Assert
+        $this->assertSame(201, $response->getStatusCode());
     }
 
     # region Data Providers

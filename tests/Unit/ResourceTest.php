@@ -60,6 +60,21 @@ class ResourceTest extends TestCase
         $this->assertSame($expectedData, $actualData);
     }
 
+    public function test_response_status_can_be_set(): void
+    {
+        # Arrange
+        $resource = (new class(null) extends Resource {
+            #[Format]
+            public function foo() {}
+        });
+
+        # Act
+        $response = $resource->setResponseStatus(201)->response();
+
+        # Assert
+        $this->assertSame(201, $response->getStatusCode());
+    }
+
     # region Data Providers
 
     public function formatProvider(): array

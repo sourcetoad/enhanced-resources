@@ -4,15 +4,17 @@ declare(strict_types=1);
 
 namespace Sourcetoad\EnhancedResources;
 
-use Closure;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Collection;
 use Sourcetoad\EnhancedResources\Exceptions\NoDefinedFormatsException;
 use Sourcetoad\EnhancedResources\Exceptions\NoFormatSelectedException;
 use Sourcetoad\EnhancedResources\Formatting\FormatManager;
+use Sourcetoad\EnhancedResources\Traits\SetsResponseStatus;
 
 abstract class Resource extends JsonResource
 {
+    use SetsResponseStatus;
+
     protected FormatManager $formatManager;
     protected Collection $modifications;
 

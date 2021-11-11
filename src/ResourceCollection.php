@@ -7,12 +7,15 @@ namespace Sourcetoad\EnhancedResources;
 use Illuminate\Http\Resources\Json\ResourceCollection as BaseResourceCollection;
 use ReflectionClass;
 use Sourcetoad\EnhancedResources\Exceptions\CannotEnhanceBaseResourcesException;
+use Sourcetoad\EnhancedResources\Traits\SetsResponseStatus;
 
 /**
  * @method $this modify(callable|array $modification)
  */
 abstract class ResourceCollection extends BaseResourceCollection
 {
+    use SetsResponseStatus;
+
     public function __construct($resource)
     {
         parent::__construct($resource);
