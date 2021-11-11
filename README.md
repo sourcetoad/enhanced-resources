@@ -32,7 +32,7 @@ class ExampleResource extends Resource
 
 With EnhancedResources you can have multiple formats for a single resource by adding format methods. Format methods are defined using the `#[Format]` attribute.
 
-If only a single format method is defined, as is the case in the example above in the [basic usage](##basic-usage) section, that format will be the default format that is used when resolving the resource. However, you can define as many formats as you like.
+If only a single format method is defined, as is the case in the example above in the [basic usage](#basic-usage) section, that format will be the default format that is used when resolving the resource. However, you can define as many formats as you like.
 
 ```php
 <?php
