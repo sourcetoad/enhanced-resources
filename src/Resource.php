@@ -62,6 +62,6 @@ abstract class Resource extends JsonResource
         $currentFormat = $this->formatManager->current() ?? throw new NoFormatSelectedException($this);
         $data = $currentFormat->invoke($this, $request);
 
-        return $this->modifications->reduce(fn($carry, $modification) => $modification($carry, $this, $this->modifications), $data);
+        return $this->modifications->reduce(fn($carry, $modification) => $modification($carry, $this), $data);
     }
 }
