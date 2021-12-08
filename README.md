@@ -316,3 +316,6 @@ class Example extends Model
 
 (new Example)->toResource();
 ```
+
+## Testing
+Testing endpoints that respond with enhanced resources is recommended to be done using Laravel's existing response assertions. One approach to creating resource asserter objects to help simplify the process that leverages functionality provided by enhanced resources can be found [here](https://gist.github.com/Jasonej/4d76d916a888b4ffe1894782ddd7af32).
