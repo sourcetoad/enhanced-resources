@@ -251,14 +251,14 @@ The only enhancement is a modification class and trait combination that allows f
 <?php
 
 use Sourcetoad\EnhancedResources\Enhancements\Only;
-use Sourcetoad\EnhancedResources\Enhancements\Traits\HasExceptEnhancement;
+use Sourcetoad\EnhancedResources\Enhancements\Traits\HasOnlyEnhancement;
 use Sourcetoad\EnhancedResources\Formatting\Attributes\Format;
 use Sourcetoad\EnhancedResources\Formatting\Attributes\IsDefault;
 use Sourcetoad\EnhancedResources\Resource;
 
 class ExampleResource extends Resource
 {
-    use HasExceptEnhancement;
+    use HasOnlyEnhancement;
 
     #[Format]
     public function foo(): array
