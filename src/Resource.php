@@ -32,7 +32,7 @@ abstract class Resource extends JsonResource
 
     public static function collection($resource): AnonymousResourceCollection
     {
-        return tap(resolve(AnonymousResourceCollection::class, [$resource, static::class]), function ($collection) {
+        return tap(resolve(AnonymousResourceCollection::class, ['resource' => $resource, 'collects' => static::class]), function ($collection) {
             if (property_exists(static::class, 'preserveKeys')) {
                 $collection->preserveKeys = (new static([]))->preserveKeys === true;
             }
