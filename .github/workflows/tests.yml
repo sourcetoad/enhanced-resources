@@ -10,6 +10,16 @@ jobs:
         php: [7.4, 8.0]
         laravel: ['^7.0', '^8.0', '^9.0']
         stability: [prefer-lowest, prefer-stable]
+        include:
+          - laravel: '^7.0'
+            collision: '^4.0'
+            testbench: '^5.0'
+          - laravel: '^8.0'
+            collision: '^5.0'
+            testbench: '^6.0'
+          - laravel: '^9.0'
+            collision: '^6.0'
+            testbench: '^7.0'
     name: PHP ${{ matrix.php }} - ${{ matrix.stability }} - Laravel ${{ matrix.laravel }}
     steps:
       - name: Checkout code
@@ -36,7 +46,7 @@ jobs:
           coverage: none
 
       - name: Install dependencies
-        run: composer update laravel/framework:${{ matrix.laravel }} --${{ matrix.stability }} --prefer-dist --no-interaction --no-suggest
+        run: composer update laravel/framework:${{ matrix.laravel }} nunomaduro/collision:${{ matrix.collision }} orchestra/testbench:${{ martix.testbench }} --${{ matrix.stability }} --prefer-dist --no-interaction --no-suggest
 
       - name: Execute tests
         run: vendor/bin/phpunit --verbose
