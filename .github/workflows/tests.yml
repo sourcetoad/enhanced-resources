@@ -46,7 +46,10 @@ jobs:
           coverage: none
 
       - name: Install dependencies
-        run: composer update laravel/framework:${{ matrix.laravel }} nunomaduro/collision:${{ matrix.collision }} orchestra/testbench:${{ matrix.testbench }} --${{ matrix.stability }} --prefer-dist --no-interaction --no-suggest
+        run: composer update --${{ matrix.stability }} --prefer-dist --no-interaction --no-suggest
+
+      - name: Require specific versions of packages
+        run: composer require laravel/framework:${{ matrix.laravel }} nunomaduro/collision:${{ matrix.collision }} orchestra/testbench:${{ matrix.testbench }}
 
       - name: Execute tests
         run: vendor/bin/phpunit --verbose
