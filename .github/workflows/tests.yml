@@ -9,7 +9,6 @@ jobs:
       matrix:
         php: [7.4, 8.0]
         laravel: ['^7.0', '^8.0', '^9.0']
-        stability: [prefer-lowest, prefer-stable]
         include:
           - laravel: '^7.0'
             collision: '^4.0'
@@ -46,7 +45,7 @@ jobs:
           coverage: none
 
       - name: Install dependencies
-        run: composer update --${{ matrix.stability }} --prefer-dist --no-interaction --no-suggest
+        run: composer update --prefer-stable --prefer-dist --no-interaction --no-suggest
 
       - name: Require specific versions of packages
         run: composer require laravel/framework:${{ matrix.laravel }} nunomaduro/collision:${{ matrix.collision }} orchestra/testbench:${{ matrix.testbench }}
