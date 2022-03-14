@@ -4,16 +4,16 @@ declare(strict_types=1);
 
 namespace Sourcetoad\EnhancedResources\Tests\Unit\Enhancements;
 
-use Sourcetoad\EnhancedResources\Enhancements\Only;
-use Sourcetoad\EnhancedResources\Enhancements\Traits\HasOnlyEnhancement;
+use Sourcetoad\EnhancedResources\Enhancements\Except;
+use Sourcetoad\EnhancedResources\Enhancements\Traits\HasExceptEnhancement;
 use Sourcetoad\EnhancedResources\Formatting\Attributes\Format;
 use Sourcetoad\EnhancedResources\Resource;
 use Sourcetoad\EnhancedResources\Tests\TestCase;
 
-class OnlyTest extends TestCase
+class ExceptTest extends TestCase
 {
     /** @dataProvider resourceProvider */
-    public function test_only_enhancement_can_be_applied_to_resources(
+    public function test_except_enhancement_can_be_applied_to_resources(
         Resource $resource,
         array $expectedData,
     ): void {
@@ -40,14 +40,15 @@ class OnlyTest extends TestCase
                             'last_name' => 'Doe',
                         ];
                     }
-                })->modify(new Only(['id'])),
+                })->modify(new Except(['id'])),
                 'expectedData' => [
-                    'id' => 1,
+                    'first_name' => 'John',
+                    'last_name' => 'Doe',
                 ],
             ],
             'applied via trait' => [
                 'resource' => (new class(null) extends Resource {
-                    use HasOnlyEnhancement;
+                    use HasExceptEnhancement;
 
                     #[Format]
                     public function foo(): array
@@ -58,9 +59,10 @@ class OnlyTest extends TestCase
                             'last_name' => 'Doe',
                         ];
                     }
-                })->only('id'),
+                })->except('id'),
                 'expectedData' => [
-                    'id' => 1,
+                    'first_name' => 'John',
+                    'last_name' => 'Doe',
                 ],
             ],
         ];

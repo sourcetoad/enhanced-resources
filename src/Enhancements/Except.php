@@ -6,7 +6,7 @@ namespace Sourcetoad\EnhancedResources\Enhancements;
 
 use Illuminate\Support\Arr;
 
-class Only
+class Except
 {
     public function __construct(
         protected array $keys,
@@ -14,6 +14,6 @@ class Only
 
     public function __invoke(array $data): array
     {
-        return Arr::only($data, $this->keys);
+        return Arr::except($data, $this->keys);
     }
 }

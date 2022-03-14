@@ -1,6 +1,6 @@
 # Enhanced Resources
 
-Laravel's API Resources, Enhanced.
+Enhancements for Laravel's API resources.
 
 ## Installation
 
@@ -10,146 +10,312 @@ $ composer require sourcetoad/enhanced-resources
 
 ## Basic Usage
 
-To create an enhanced resource you simply extend `Sourcetoad\EnhancedResources\EnhancedResource` instead of `Illuminate\Http\Resources\Json\JsonResource`.
+To create an enhanced resource you simply extend `Sourcetoad\EnhancedResources\Resource` instead of `Illuminate\Http\Resources\Json\JsonResource` and provide a format method.
 
 ```php
 <?php
 
-use Sourcetoad\EnhancedResources\EnhancedResource;
+use Sourcetoad\EnhancedResources\Formatting\Attributes\Format;
+use Sourcetoad\EnhancedResources\Resource;
 
-class ExampleResource extends EnhancedResource
+class ExampleResource extends Resource
 {
-    public function baseFormat($request): array
+    #[Format]
+    public function foo(): array
     {
-        return [
-            //
-        ];
+        return [];
     }
 }
 ```
 
-### Multiple Formats
+## Formatting
 
-With EnhancedResources you can have multiple formats for each resource by adding format methods (`{formatName}Format`) to the resource.
+With EnhancedResources you can have multiple formats for a single resource by adding format methods. Format methods are defined using the `#[Format]` attribute.
 
-When using a resource with multiple formats you can provide the intended format during resource instantiation:
+If only a single format method is defined, as is the case in the example above in the [basic usage](#basic-usage) section, that format will be the default format that is used when resolving the resource. However, you can define as many formats as you like.
 
 ```php
 <?php
 
-use Sourcetoad\EnhancedResources\EnhancedResource;
+use Sourcetoad\EnhancedResources\Formatting\Attributes\Format;
+use Sourcetoad\EnhancedResources\Resource;
 
-class ExampleResource extends EnhancedResource
+class ExampleResource extends Resource
 {
-    public function alternativeFormat($request): array
+    #[Format]
+    public function bar(): array
     {
-        return [
-            //
-        ];    
+        return [];
+    }
+
+    #[Format]
+    public function foo(): array
+    {
+        return [];
+    }
+
+    #[Format]
+    public function foobar(): array
+    {
+        return [];
     }
 }
-
-ExampleResource::make($resource, 'alternative');
-new ExampleResource($resource, 'alternative');
 ```
 
-Alternatively, you can provide the desired format after instantiation with the format method:
+In cases like the one above you'll need to specify the format to be used by providing its name to the `format()` method. By default the format uses the same name as the method, so in this example we have format names of `bar`, `foo`, and `foobar`.
+
+```php
+ExampleResource::make($object)->format('foo');
+```
+
+Failing to specify the format in a situation where there is no default format will result in a `NoFormatSelectedException` being thrown.
+
+### Specifying a Default
+
+If you don't want to always explicitly specify the format to be used when you have a resource with multiple formats you can specify one format as default using the `#[IsDefault]` attribute.
 
 ```php
 <?php
 
-ExampleResource::make($resource)->format('alternative');
+use Sourcetoad\EnhancedResources\Formatting\Attributes\Format;
+use Sourcetoad\EnhancedResources\Formatting\Attributes\IsDefault;
+use Sourcetoad\EnhancedResources\Resource;
+
+class ExampleResource extends Resource
+{
+    #[Format]
+    public function bar(): array
+    {
+        return [];
+    }
+
+    #[IsDefault, Format]
+    public function foo(): array
+    {
+        return [];
+    }
+
+    #[Format]
+    public function foobar(): array
+    {
+        return [];
+    }
+}
 ```
 
-### Base Enhancements
+After adding the `#[IsDefault]` attribute to one of your format methods it will be used unless the format is explicitly specified via the `format()` method.
 
-EnhancedResources comes with a small set of core enhancements: `append`, `call`, `except`, `only`, and `replace`.
+Specifying more than one default method via the `#[IsDefault]` attribute will result in a `MultipleDefaultFormatsException` being thrown.
 
-#### Append
+The `#[IsDefault]` attribute is detected on a per-class basis up the inheritance chain, so you can define a format as `#[IsDefault]` on a parent resource and override it with another `#[IsDefault]` format on the child resource without triggering a `MultipleDefaultFormatsException`. However, if no `#[IsDefault]` format is defined on the child resource the one on the parent will still be used.
 
-The append enhancement allows you to append data from the underlying resource object to the output.
+### Naming Formats
+
+You can also override the name of formats and even provide multiple names for a single format. Let's look at the following example:
 
 ```php
 <?php
 
-ExampleResource::make($resource)->append('key1', 'key2');
-// Output will include the `key1` and `key2` keys even if they aren't included in the format.
+use Sourcetoad\EnhancedResources\Formatting\Attributes\Format;
+use Sourcetoad\EnhancedResources\Formatting\Attributes\IsDefault;
+use Sourcetoad\EnhancedResources\Resource;
+
+class ExampleResource extends Resource
+{
+    #[Format, Format('a')]
+    public function bar(): array
+    {
+        return [];
+    }
+
+    #[Format, Format('b'), Format('something-else')]
+    public function foo(): array
+    {
+        return [];
+    }
+
+    #[Format('c')]
+    public function foobar(): array
+    {
+        return [];
+    }
+}
 ```
 
-#### Call
+In this example we have three formats, but six names:
+ - The `bar` method can be used with the names `bar`, and `a`.
+ - The `foo` method can be used with the names `foo`, `b`, and `something-else`.
+ - The `foobar` method can be used with the name `c`.
 
-The call enhancement allows you to use one off enhancements using a callable.
-
-```php
-<?php
-
-ExampleResource::make($resource)
-    ->call(function (ExampleResource $resource, array $data) {
-        // Alter $data
-
-        return $data;
-    });
-```
-
-#### Exclude
-
-The exclude enhancement allows you to exclude data from the output.
-
-```php
-<?php
-
-ExampleResource::make($resource)->exclude('key1', 'key2');
-```
-
-#### Only
-
-The only enhancement allows to limit the data to a given set of keys.
-
-```php
-<?php
-
-ExampleResource::make($resource)->only('key1', 'key2');
-```
-
-#### Replace
-
-The replace enhancement allows you to replace the dataset outright using `array_replace` or `array_replace_recursive`.
-
-```php
-<?php
-
-ExampleResource::make($resource)->replace([/* New Data */]); // recursive
-ExampleResource::make($resource)->replace([/* New Data */], false); // not recursive
-```
-
+The primary name of each format is the first instance of the `#[Format]` attribute, and the rest are aliases. This means that the primary names would be: `bar`, `foo`, and `c` in the example above. In most cases this distinction should not come into play.
 
 ### Collections
 
-Enhanced collections work by mapping the format and enhancement calls to each resource contained within.
-As a result enhanced collections only work when they collect enhanced resources.
-The easiest way to handle this is to set the `$collects` property on the enhanced collection or ensure that you're
-following the standard convention for resource and collection naming so that the `collects()` method can detect it.
+Both anonymous collections and defined resource collections utilize the formats of the underlying resource objects, and follow all the same rules.
 
-## Advanced Usage
+## Modifications
 
-EnhancedResources allows you to enhance your resources beyond the included resources.
+Modifications allow you to tweak the output of resources on the fly. They are applied similarly to how `state` is applied for Eloquent factories. The most basic form of modification is a simple array merge modification done by providing an array to the `modify` method of a resource:
 
-### Custom Enhancements
+```php
+ExampleResource::make($object)->modify(['some_key' => 'some_value']);
+```
 
-With the `EnhancementManager` you can easily add your own custom enhancements by just providing something `callable`, a name, and (optionally) a FQN for an `EnhancedResource`.
+To accomplish more complex modifications you can also pass any callable that accepts `(array $data, Resource $resource)`. It is important when using these types of modifications to return the data as failing to do so will result in resource's data being replaced with `null`.
+
+```php
+ExampleResource::make($object)->modify(function (array $data) {
+    $data['some_key'] = 'some_value';
+    
+    return $data;
+})
+```
+
+You can also define methods on the resource class itself that can make modifications via calling the `modify` method.
 
 ```php
 <?php
 
-use Sourcetoad\EnhancedResources\EnhancedResource;
-use Sourcetoad\EnhancedResources\EnhancementManager;
-use Sourcetoad\EnhancedResources\Support\Facades\ResourceEnhancements;
+use Sourcetoad\EnhancedResources\Formatting\Attributes\Format;
+use Sourcetoad\EnhancedResources\Formatting\Attributes\IsDefault;
+use Sourcetoad\EnhancedResources\Resource;
 
-$exampleEnhancement = fn(EnhancedResource $resource, $data) => $data;
+class ExampleResource extends Resource
+{
+    #[Format]
+    public function foo(): array
+    {
+        return [
+            'value' => $this->resource['value'],
+        ];
+    }
+    
+    public function double(): static
+    {
+        return $this->modify(function (array $data) {
+            $data['value'] *= 2;
+            
+            return $data;        
+        });
+    }
+}
 
-// Resolve the Enhancement Manager out of the container.
-resolve(EnhancementManager::class)->register('example', $exampleEnhancement);
-
-// Use the ResourceEnhancements facade.
-ResourceEnhancements::register('example', fn(EnhancedResource $resource, $data) => $data);
+ExampleResource::make(['value' => 1])->double()->toArray(); // ['value' => 2]
 ```
+
+### Except
+The except enhancement is a modification class and trait combination that allows for the easy exclusion of certain fields from a resource.
+
+```php
+<?php
+
+use Sourcetoad\EnhancedResources\Enhancements\Except;
+use Sourcetoad\EnhancedResources\Enhancements\Traits\HasExceptEnhancement;
+use Sourcetoad\EnhancedResources\Formatting\Attributes\Format;
+use Sourcetoad\EnhancedResources\Formatting\Attributes\IsDefault;
+use Sourcetoad\EnhancedResources\Resource;
+
+class ExampleResource extends Resource
+{
+    use HasExceptEnhancement;
+
+    #[Format]
+    public function foo(): array
+    {
+        return [
+            'first_name' => $this->resource->firstName,
+            'id' => $this->resource->id,
+            'last_name' => $this->resource->lastName,
+        ];
+    }
+}
+
+ExampleResource::make(new class {
+    public string $firstName = 'John';
+    public int $id = 1;
+    public string $lastName = 'Doe';
+})->except('id'); // ['first_name' => 'John', 'last_name' => 'Doe']
+
+// Without the trait you can still use the Except enhancement.
+ExampleResource::make(new class {
+    public string $firstName = 'John';
+    public int $id = 1;
+    public string $lastName = 'Doe';
+})->modify(new Except(['id'])); // ['first_name' => 'John', 'last_name' => 'Doe']
+```
+
+### Only
+The only enhancement is a modification class and trait combination that allows for the easy exclusion of certain fields from a resource.
+
+```php
+<?php
+
+use Sourcetoad\EnhancedResources\Enhancements\Only;
+use Sourcetoad\EnhancedResources\Enhancements\Traits\HasOnlyEnhancement;
+use Sourcetoad\EnhancedResources\Formatting\Attributes\Format;
+use Sourcetoad\EnhancedResources\Formatting\Attributes\IsDefault;
+use Sourcetoad\EnhancedResources\Resource;
+
+class ExampleResource extends Resource
+{
+    use HasOnlyEnhancement;
+
+    #[Format]
+    public function foo(): array
+    {
+        return [
+            'first_name' => $this->resource->firstName,
+            'id' => $this->resource->id,
+            'last_name' => $this->resource->lastName,
+        ];
+    }
+}
+
+ExampleResource::make(new class {
+    public string $firstName = 'John';
+    public int $id = 1;
+    public string $lastName = 'Doe';
+})->only('id'); // ['id' => 1]
+
+// Without the trait you can still use the Only enhancement.
+ExampleResource::make(new class {
+    public string $firstName = 'John';
+    public int $id = 1;
+    public string $lastName = 'Doe';
+})->modify(new Only(['id'])); // ['id' => 1]
+```
+
+## Additional Enhancements
+EnhancedResources also includes a couple of other helpful enhancements.
+
+### Status Codes
+You can now tweak the status code of the resource response with a simple call to the `setResponseStatus()` method.
+
+```php
+use Symfony\Component\HttpFoundation\Response;
+
+ExampleResource::make($object)->setResponseStatus(Response::HTTP_I_AM_A_TEAPOT);
+```
+
+### ConvertsToResource
+You can provide any object with a `toResource` method with a simple trait and attribute combination:
+
+```php
+use Illuminate\Database\Eloquent\Model;
+use Sourcetoad\EnhancedResources\Resourceable\AsResource;
+use Sourcetoad\EnhancedResources\Resourceable\ConvertsToResource;
+
+/**
+ * @method ExampleResource toResource()
+ */
+#[AsResource(ExampleResource::class)]
+class Example extends Model
+{
+    use ConvertsToResource;
+}
+
+(new Example)->toResource();
+```
+
+## Testing
+Testing endpoints that respond with enhanced resources is recommended to be done using Laravel's existing response assertions. One approach to creating resource asserter objects to help simplify the process that leverages functionality provided by enhanced resources can be found [here](https://gist.github.com/Jasonej/4d76d916a888b4ffe1894782ddd7af32).
