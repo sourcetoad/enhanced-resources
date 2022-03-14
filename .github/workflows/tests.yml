@@ -8,8 +8,16 @@ jobs:
       fail-fast: true
       matrix:
         php: [8.0, 8.1]
+        laravel: [8.0, 9.0]
         stability: [prefer-lowest, prefer-stable]
-    name: PHP ${{ matrix.php }} - ${{ matrix.stability }}
+        include:
+          - laravel: 8.0
+            collision: 5.0
+            testbench: 6.0
+          - laravel: 9.0
+            collision: 6.0
+            testbench: 7.0
+    name: PHP ${{ matrix.php }} - Laravel v${{ matrix.laravel }} - ${{ matrix.stability }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -36,6 +44,9 @@ jobs:
 
       - name: Install dependencies
         run: composer update --${{ matrix.stability }} --prefer-dist --no-interaction --no-suggest
+
+      - name: Require specific versions of packages
+        run: composer update laravel/framework:^${{ matrix.laravel }} nunomaduro/collision:^${{ matrix.collision }} orchestra/testbench:^${{ matrix.testbench }} -W
 
       - name: Execute tests
         run: vendor/bin/phpunit --verbose
