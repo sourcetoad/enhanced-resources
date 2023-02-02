@@ -1,7 +1,7 @@
 {
     "name": "sourcetoad/enhanced-resources",
     "description": "Laravel's API Resources enhanced.",
-    "minimum-stability": "stable",
+    "minimum-stability": "dev",
     "license": "MIT",
     "authors": [
         {
@@ -21,11 +21,10 @@
     },
     "require": {
         "php": "^8.0",
-        "laravel/framework": "^8.0|^9.0"
+        "laravel/framework": "^9.0|^10.0"
     },
     "require-dev": {
-        "nunomaduro/collision": "^5.10|^6.0",
-        "orchestra/testbench": "^6.22|^7.0",
-        "phpunit/phpunit": "^9.5"
+        "orchestra/testbench": "^7.0|^8.0",
+        "phpunit/phpunit": "^9.5|^10.0"
     }
 }
