@@ -1,7 +1,7 @@
 {
     "name": "sourcetoad/enhanced-resources",
     "description": "Laravel's API Resources enhanced.",
-    "minimum-stability": "dev",
+    "minimum-stability": "stable",
     "license": "MIT",
     "authors": [
         {
