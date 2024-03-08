@@ -7,6 +7,7 @@ namespace Sourcetoad\EnhancedResources\Tests\Unit;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Sourcetoad\EnhancedResources\Exceptions\CannotEnhanceBaseResourcesException;
 use Sourcetoad\EnhancedResources\ResourceCollection;
 use Sourcetoad\EnhancedResources\Tests\ExplicitDefaultResource;
@@ -17,7 +18,7 @@ use stdClass;
 
 class ResourceCollectionTest extends TestCase
 {
-    /** @dataProvider formatProvider */
+    #[DataProvider('formatProvider')]
     public function test_collection_records_are_formatted_correctly(
         ResourceCollection $collection,
         array $expectedData
@@ -40,7 +41,7 @@ class ResourceCollectionTest extends TestCase
         };
     }
 
-    /** @dataProvider modificationProvider */
+    #[DataProvider('modificationProvider')]
     public function test_resource_collection_can_be_modified_dynamically(
         ResourceCollection $resource,
         array $expectedData,
@@ -76,7 +77,7 @@ class ResourceCollectionTest extends TestCase
 
     # region Data Providers
 
-    public function formatProvider(): array
+    public static function formatProvider(): array
     {
         $john = new stdClass;
         $john->id = 1;
@@ -90,7 +91,7 @@ class ResourceCollectionTest extends TestCase
 
         return [
             'implicit default is used' => [
-                'resource' => new class([$john, $jane]) extends ResourceCollection {
+                'collection' => new class([$john, $jane]) extends ResourceCollection {
                     public $collects = ImplicitDefaultResource::class;
                 },
                 'expectedData' => [
@@ -107,7 +108,7 @@ class ResourceCollectionTest extends TestCase
                 ],
             ],
             'explicit default is used' => [
-                'resource' => new class([$john, $jane]) extends ResourceCollection {
+                'collection' => new class([$john, $jane]) extends ResourceCollection {
                     public $collects = ExplicitDefaultResource::class;
                 },
                 'expectedData' => [
@@ -124,7 +125,7 @@ class ResourceCollectionTest extends TestCase
                 ],
             ],
             'specified format is used' => [
-                'resource' => (new class([$john, $jane]) extends ResourceCollection {
+                'collection' => (new class([$john, $jane]) extends ResourceCollection {
                     public $collects = ExplicitDefaultResource::class;
                 })->format('bar'),
                 'expectedData' => [
@@ -147,7 +148,7 @@ class ResourceCollectionTest extends TestCase
         ];
     }
 
-    public function modificationProvider(): array
+    public static function modificationProvider(): array
     {
         $john = new stdClass;
         $john->id = 1;

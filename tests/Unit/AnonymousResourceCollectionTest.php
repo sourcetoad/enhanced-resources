@@ -4,17 +4,17 @@ declare(strict_types=1);
 
 namespace Sourcetoad\EnhancedResources\Tests\Unit;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use Sourcetoad\EnhancedResources\AnonymousResourceCollection;
 use Sourcetoad\EnhancedResources\ResourceCollection;
 use Sourcetoad\EnhancedResources\Tests\ExplicitDefaultResource;
-use Sourcetoad\EnhancedResources\Tests\ImplicitDefaultCollection;
 use Sourcetoad\EnhancedResources\Tests\ImplicitDefaultResource;
 use Sourcetoad\EnhancedResources\Tests\TestCase;
 use stdClass;
 
 class AnonymousResourceCollectionTest extends TestCase
 {
-    /** @dataProvider formatProvider */
+    #[DataProvider('formatProvider')]
     public function test_anonymous_collection_records_are_formatted_correctly(
         AnonymousResourceCollection $collection,
         array $expectedData
@@ -26,7 +26,7 @@ class AnonymousResourceCollectionTest extends TestCase
         $this->assertSame($expectedData, $actualData);
     }
 
-    /** @dataProvider modificationProvider */
+    #[DataProvider('modificationProvider')]
     public function test_anonymous_collection_can_be_modified_dynamically(
         ResourceCollection $resource,
         array $expectedData,
@@ -62,7 +62,7 @@ class AnonymousResourceCollectionTest extends TestCase
 
     # region Data Providers
 
-    public function formatProvider(): array
+    public static function formatProvider(): array
     {
         $john = new stdClass;
         $john->id = 1;
@@ -76,7 +76,7 @@ class AnonymousResourceCollectionTest extends TestCase
 
         return [
             'implicit default is used' => [
-                'resource' => ImplicitDefaultResource::collection([$john, $jane]),
+                'collection' => ImplicitDefaultResource::collection([$john, $jane]),
                 'expectedData' => [
                     [
                         'first_name' => 'John',
@@ -91,7 +91,7 @@ class AnonymousResourceCollectionTest extends TestCase
                 ],
             ],
             'explicit default is used' => [
-                'resource' => ExplicitDefaultResource::collection([$john, $jane]),
+                'collection' => ExplicitDefaultResource::collection([$john, $jane]),
                 'expectedData' => [
                     [
                         'first_name' => 'John',
@@ -106,7 +106,7 @@ class AnonymousResourceCollectionTest extends TestCase
                 ],
             ],
             'specified format is used' => [
-                'resource' => ExplicitDefaultResource::collection([$john, $jane])->format('bar'),
+                'collection' => ExplicitDefaultResource::collection([$john, $jane])->format('bar'),
                 'expectedData' => [
                     [
                         'id' => 1,
@@ -127,7 +127,7 @@ class AnonymousResourceCollectionTest extends TestCase
         ];
     }
 
-    public function modificationProvider(): array
+    public static function modificationProvider(): array
     {
         $john = new stdClass;
         $john->id = 1;
