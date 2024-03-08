@@ -9,29 +9,16 @@ jobs:
       matrix:
         php: [8.2, 8.3]
         laravel: [10.0, 11.0]
-        stability: [prefer-lowest, prefer-stable]
+        stability: ["--prefer-lowest", "--prefer-stable"]
         include:
           - laravel: 10.0
             testbench: 8.0
-          - laravel: 11.x-dev
-            testbench: 9.x-dev
+          - laravel: 11.0
+            testbench: 9.0
     name: PHP ${{ matrix.php }} - Laravel v${{ matrix.laravel }} - ${{ matrix.stability }}
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Get Composer Cache Directory
-        id: composer-cache
-        run: |
-          echo "::set-output name=dir::$(composer config cache-files-dir)"
-
-      - name: Cache Dependencies
-        uses: actions/cache@v2
-        with:
-          path: ${{ steps.composer-cache.outputs.dir }}
-          key: ${{ runner.os }}-composer-php-${{ matrix.php }}-${{ hashFiles('**/composer.json') }}
-          restore-keys: |
-            ${{ runner.os }}-composer-
+      - name: Checkout
+        uses: actions/checkout@v4
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -40,8 +27,21 @@ jobs:
           extensions: dom, curl, libxml, mbstring, zip, pcntl, gd
           coverage: none
 
+      - name: Get Composer Cache Directory
+        id: composer-cache
+        run: |
+          echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+      - name: Cache composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-${{ matrix.php }}-${{ matrix.strategy }}-composer-${{ hashFiles('**/composer.json') }}
+          restore-keys: |
+            ${{ runner.os }}-${{ matrix.php }}-${{ matrix.strategy }}-composer-
+
       - name: Install dependencies
-        run: composer update --${{ matrix.stability }} --prefer-dist --no-interaction --no-suggest
+        run: composer update ${{ matrix.stability }} --prefer-dist --no-interaction --no-suggest
 
       - name: Require specific versions of packages
         run: composer update laravel/framework:^${{ matrix.laravel }} orchestra/testbench:^${{ matrix.testbench }} -W
