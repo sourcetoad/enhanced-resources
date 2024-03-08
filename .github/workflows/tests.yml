@@ -11,10 +11,10 @@ jobs:
         laravel: [10.0, 11.0]
         stability: [prefer-lowest, prefer-stable]
         include:
-          - laravel: 9.0
-            testbench: 7.0
           - laravel: 10.0
             testbench: 8.0
+          - laravel: 11.x-dev
+            testbench: 9.x-dev
     name: PHP ${{ matrix.php }} - Laravel v${{ matrix.laravel }} - ${{ matrix.stability }}
     steps:
       - name: Checkout code
