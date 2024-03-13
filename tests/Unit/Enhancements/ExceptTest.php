@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Sourcetoad\EnhancedResources\Tests\Unit\Enhancements;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use Sourcetoad\EnhancedResources\Enhancements\Except;
 use Sourcetoad\EnhancedResources\Enhancements\Traits\HasExceptEnhancement;
 use Sourcetoad\EnhancedResources\Formatting\Attributes\Format;
@@ -12,7 +13,7 @@ use Sourcetoad\EnhancedResources\Tests\TestCase;
 
 class ExceptTest extends TestCase
 {
-    /** @dataProvider resourceProvider */
+    #[DataProvider('resourceProvider')]
     public function test_except_enhancement_can_be_applied_to_resources(
         Resource $resource,
         array $expectedData,
@@ -26,7 +27,7 @@ class ExceptTest extends TestCase
 
     # region Data Providers
 
-    public function resourceProvider(): array
+    public static function resourceProvider(): array
     {
         return [
             'applied manually' => [

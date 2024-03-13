@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Sourcetoad\EnhancedResources\Tests\Unit\Formatting;
 
 use Closure;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Sourcetoad\EnhancedResources\Exceptions\FormatNameCollisionException;
 use Sourcetoad\EnhancedResources\Exceptions\InvalidFormatException;
 use Sourcetoad\EnhancedResources\Exceptions\MultipleDefaultFormatsException;
@@ -35,7 +36,7 @@ class FormatManagerTest extends TestCase
         $this->assertSame(['bar', 'foo', 'fooAlias'], $formats->keys()->all());
     }
 
-    /** @dataProvider formatNameCollisionProvider */
+    #[DataProvider('formatNameCollisionProvider')]
     public function test_format_name_collisions_are_prevented(object $subject): void
     {
         # Expect
@@ -45,7 +46,7 @@ class FormatManagerTest extends TestCase
         new FormatManager($subject);
     }
 
-    /** @dataProvider defaultFormatProvider */
+    #[DataProvider('defaultFormatProvider')]
     public function test_default_format_is_detected_properly(object $subject, string $expectedFormat): void
     {
         # Act
@@ -73,7 +74,7 @@ class FormatManagerTest extends TestCase
         new FormatManager($subject);
     }
 
-    /** @dataProvider currentFormatProvider */
+    #[DataProvider('currentFormatProvider')]
     public function test_current_format_can_be_set_and_retrieved(Closure $setup, string $expectedFormat): void
     {
         # Act
@@ -85,7 +86,7 @@ class FormatManagerTest extends TestCase
         $this->assertContains($expectedFormat, $manager->current()->names());
     }
 
-    /** @dataProvider formatExistenceProvider */
+    #[DataProvider('formatExistenceProvider')]
     public function test_checking_for_a_formats_existence(object $subject, string $formatName, bool $expectedResult): void
     {
         # Arrange
@@ -98,7 +99,7 @@ class FormatManagerTest extends TestCase
         $this->assertSame($expectedResult, $actualResult);
     }
 
-    /** @dataProvider formatExistenceProvider */
+    #[DataProvider('formatExistenceProvider')]
     public function test_checking_for_a_formats_non_existence(object $subject, string $formatName, bool $expectedResult): void
     {
         # Arrange
@@ -128,7 +129,7 @@ class FormatManagerTest extends TestCase
 
     # region Data Providers
 
-    public function currentFormatProvider(): array
+    public static function currentFormatProvider(): array
     {
         return [
             'implicit default is used as the initial current format' => [
@@ -181,41 +182,41 @@ class FormatManagerTest extends TestCase
         ];
     }
 
-    public function defaultFormatProvider(): array
+    public static function defaultFormatProvider(): array
     {
         return [
             'implicit default' => [
-                'object' => new class {
+                'subject' => new class {
                     #[Format]
                     public function foo() {}
                 },
-                'foo',
+                'expectedFormat' => 'foo',
             ],
             'explicit default' => [
-                'object' => new class {
+                'subject' => new class {
                     #[Format]
                     public function bar() {}
 
                     #[IsDefault, Format]
                     public function foo() {}
                 },
-                'foo',
+                'expectedFormat' => 'foo',
             ],
             'inherited default' => [
-                'object' => new class extends ParentClass {},
-                'foo',
+                'subject' => new class extends ParentClass {},
+                'expectedFormat' => 'foo',
             ],
             'overridden default' => [
-                'object' => new class extends ParentClass {
+                'subject' => new class extends ParentClass {
                     #[IsDefault, Format]
                     public function bar() {}
                 },
-                'bar',
+                'expectedFormat' => 'bar',
             ],
         ];
     }
 
-    public function formatExistenceProvider(): array
+    public static function formatExistenceProvider(): array
     {
         return [
             'implicit format exists' => [
@@ -261,11 +262,11 @@ class FormatManagerTest extends TestCase
         ];
     }
 
-    public function formatNameCollisionProvider(): array
+    public static function formatNameCollisionProvider(): array
     {
         return [
             'explicit/explicit' => [
-                'object' => new class {
+                'subject' => new class {
                     #[Format('foo')]
                     public function formatOne() {}
 
@@ -274,7 +275,7 @@ class FormatManagerTest extends TestCase
                 },
             ],
             'explicit/implicit' => [
-                'object' => new class {
+                'subject' => new class {
                     #[Format]
                     public function foo() {}
 

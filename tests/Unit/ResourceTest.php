@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Sourcetoad\EnhancedResources\Tests\Unit;
 
-use Illuminate\Support\Collection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Sourcetoad\EnhancedResources\Exceptions\NoDefinedFormatsException;
 use Sourcetoad\EnhancedResources\Exceptions\NoFormatSelectedException;
 use Sourcetoad\EnhancedResources\Formatting\Attributes\Format;
@@ -16,7 +16,7 @@ use stdClass;
 
 class ResourceTest extends TestCase
 {
-    /** @dataProvider formatProvider */
+    #[DataProvider('formatProvider')]
     public function test_resource_is_formatted_correctly(Resource $resource, array $expectedData): void
     {
         # Act
@@ -50,7 +50,7 @@ class ResourceTest extends TestCase
         })->toArray(request());
     }
 
-    /** @dataProvider modificationProvider */
+    #[DataProvider('modificationProvider')]
     public function test_resource_can_be_modified_dynamically(Resource $resource, array $expectedData): void
     {
         # Act
@@ -77,7 +77,7 @@ class ResourceTest extends TestCase
 
     # region Data Providers
 
-    public function formatProvider(): array
+    public static function formatProvider(): array
     {
         return [
             'implicit default is used' => [
@@ -163,7 +163,7 @@ class ResourceTest extends TestCase
         ];
     }
 
-    public function modificationProvider(): array
+    public static function modificationProvider(): array
     {
         $john = new stdClass;
         $john->id = 1;

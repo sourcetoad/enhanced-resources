@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Sourcetoad\EnhancedResources\Tests\Unit\Formatting;
 
 use Closure;
+use PHPUnit\Framework\Attributes\DataProvider;
 use ReflectionMethod;
 use Sourcetoad\EnhancedResources\Formatting\Attributes\Format;
 use Sourcetoad\EnhancedResources\Formatting\Attributes\IsDefault;
@@ -13,7 +14,7 @@ use Sourcetoad\EnhancedResources\Tests\TestCase;
 
 class FormatDefinitionTest extends TestCase
 {
-    /** @dataProvider nameDetectionProvider */
+    #[DataProvider('nameDetectionProvider')]
     public function test_name_is_properly_detected(ReflectionMethod $method, Closure $assertions): void
     {
         # Act
@@ -23,7 +24,7 @@ class FormatDefinitionTest extends TestCase
         $assertions($definition);
     }
 
-    /** @dataProvider defaultDetectionProvider */
+    #[DataProvider('defaultDetectionProvider')]
     public function test_explicit_default_is_properly_detected(ReflectionMethod $method, bool $expected): void
     {
         # Arrange
@@ -38,7 +39,7 @@ class FormatDefinitionTest extends TestCase
 
     # region Data Providers
 
-    public function defaultDetectionProvider(): array
+    public static function defaultDetectionProvider(): array
     {
         $subject = new class {
             #[Format('bar')]
@@ -60,7 +61,7 @@ class FormatDefinitionTest extends TestCase
         ];
     }
 
-    public function nameDetectionProvider(): array
+    public static function nameDetectionProvider(): array
     {
         $subject = new class {
             #[Format('bar')]
@@ -74,19 +75,19 @@ class FormatDefinitionTest extends TestCase
             'implicit name' => [
                 'method' => new ReflectionMethod($subject, 'foo'),
                 'assertions' => function (FormatDefinition $definition) {
-                    $this->assertSame('foo', $definition->name());
+                    static::assertSame('foo', $definition->name());
                 },
             ],
             'explicit name' => [
                 'method' => new ReflectionMethod($subject, 'barFormat'),
                 'assertions' => function (FormatDefinition $definition) {
-                    $this->assertSame('bar', $definition->name());
+                    static::assertSame('bar', $definition->name());
                 }
             ],
             'alias' => [
                 'method' => new ReflectionMethod($subject, 'foo'),
                 'assertions' => function (FormatDefinition $definition) {
-                    $this->assertContains('fooAlias', $definition->names());
+                    static::assertContains('fooAlias', $definition->names());
                 }
             ],
         ];
