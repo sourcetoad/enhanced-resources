@@ -16,6 +16,7 @@ abstract class Resource extends JsonResource
     use SetsResponseStatus;
 
     protected FormatManager $formatManager;
+
     protected Collection $modifications;
 
     public function __construct($resource)
@@ -48,8 +49,8 @@ abstract class Resource extends JsonResource
 
     public function modify(callable|array $modification): static
     {
-        $modification = !is_callable($modification)
-            ? fn(array $data) => array_merge($data, $modification)
+        $modification = ! is_callable($modification)
+            ? fn (array $data) => array_merge($data, $modification)
             : $modification;
 
         $this->modifications->push($modification);
@@ -62,6 +63,6 @@ abstract class Resource extends JsonResource
         $currentFormat = $this->formatManager->current() ?? throw new NoFormatSelectedException($this);
         $data = $currentFormat->invoke($this, $request);
 
-        return $this->modifications->reduce(fn($carry, $modification) => $modification($carry, $this), $data);
+        return $this->modifications->reduce(fn ($carry, $modification) => $modification($carry, $this), $data);
     }
 }

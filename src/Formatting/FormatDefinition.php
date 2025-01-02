@@ -13,7 +13,9 @@ use Sourcetoad\EnhancedResources\Formatting\Attributes\IsDefault;
 class FormatDefinition
 {
     protected Collection $formats;
+
     protected bool $isExplicitlyDefault;
+
     protected ReflectionMethod $reflection;
 
     public function __construct(ReflectionMethod $reflection)
@@ -21,8 +23,8 @@ class FormatDefinition
         $this->reflection = $reflection;
 
         $this->formats = (new Collection($this->reflection->getAttributes(Format::class)))
-            ->map(fn(ReflectionAttribute $attribute) => $attribute->newInstance());
-        $this->isExplicitlyDefault = !empty($this->reflection->getAttributes(IsDefault::class));
+            ->map(fn (ReflectionAttribute $attribute) => $attribute->newInstance());
+        $this->isExplicitlyDefault = ! empty($this->reflection->getAttributes(IsDefault::class));
     }
 
     public function invoke(object $object, $request): mixed
@@ -42,7 +44,7 @@ class FormatDefinition
 
     public function names(): Collection
     {
-        return $this->formats->map(fn(Format $format) => $format->name() ?? $this->reflection->getName())
+        return $this->formats->map(fn (Format $format) => $format->name() ?? $this->reflection->getName())
             ->unique();
     }
 

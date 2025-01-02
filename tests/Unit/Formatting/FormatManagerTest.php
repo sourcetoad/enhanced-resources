@@ -19,8 +19,9 @@ class FormatManagerTest extends TestCase
 {
     public function test_formats_are_detected_correctly(): void
     {
-        # Arrange
-        $subject = new class {
+        // Arrange
+        $subject = new class
+        {
             #[Format('bar')]
             public function barFormat() {}
 
@@ -28,10 +29,10 @@ class FormatManagerTest extends TestCase
             public function foo() {}
         };
 
-        # Act
+        // Act
         $formats = (new FormatManager($subject))->formats();
 
-        # Assert
+        // Assert
         $this->assertContainsOnlyInstancesOf(FormatDefinition::class, $formats);
         $this->assertSame(['bar', 'foo', 'fooAlias'], $formats->keys()->all());
     }
@@ -39,30 +40,31 @@ class FormatManagerTest extends TestCase
     #[DataProvider('formatNameCollisionProvider')]
     public function test_format_name_collisions_are_prevented(object $subject): void
     {
-        # Expect
+        // Expect
         $this->expectException(FormatNameCollisionException::class);
 
-        # Act
+        // Act
         new FormatManager($subject);
     }
 
     #[DataProvider('defaultFormatProvider')]
     public function test_default_format_is_detected_properly(object $subject, string $expectedFormat): void
     {
-        # Act
+        // Act
         $manager = new FormatManager($subject);
 
-        # Assert
+        // Assert
         $this->assertSame($expectedFormat, $manager->default()->name());
     }
 
     public function test_multiple_default_formats_are_prevented(): void
     {
-        # Expect
+        // Expect
         $this->expectException(MultipleDefaultFormatsException::class);
 
-        # Arrange
-        $subject = new class {
+        // Arrange
+        $subject = new class
+        {
             #[IsDefault, Format]
             public function bar() {}
 
@@ -70,18 +72,18 @@ class FormatManagerTest extends TestCase
             public function foo() {}
         };
 
-        # Act
+        // Act
         new FormatManager($subject);
     }
 
     #[DataProvider('currentFormatProvider')]
     public function test_current_format_can_be_set_and_retrieved(Closure $setup, string $expectedFormat): void
     {
-        # Act
+        // Act
         /** @var FormatManager $manager */
         $manager = $setup();
 
-        # Assert
+        // Assert
         $this->assertSame($expectedFormat, $manager->currentName());
         $this->assertContains($expectedFormat, $manager->current()->names());
     }
@@ -89,58 +91,61 @@ class FormatManagerTest extends TestCase
     #[DataProvider('formatExistenceProvider')]
     public function test_checking_for_a_formats_existence(object $subject, string $formatName, bool $expectedResult): void
     {
-        # Arrange
+        // Arrange
         $manager = new FormatManager($subject);
 
-        # Act
+        // Act
         $actualResult = $manager->hasFormat($formatName);
 
-        # Assert
+        // Assert
         $this->assertSame($expectedResult, $actualResult);
     }
 
     #[DataProvider('formatExistenceProvider')]
     public function test_checking_for_a_formats_non_existence(object $subject, string $formatName, bool $expectedResult): void
     {
-        # Arrange
+        // Arrange
         $manager = new FormatManager($subject);
 
-        # Act
+        // Act
         $actualResult = $manager->lacksFormat($formatName);
 
-        # Assert
-        $this->assertSame(!$expectedResult, $actualResult);
+        // Assert
+        $this->assertSame(! $expectedResult, $actualResult);
     }
 
     public function test_selecting_a_non_existent_format_fails(): void
     {
-        # Expect
+        // Expect
         $this->expectException(InvalidFormatException::class);
 
-        # Arrange
-        $manager = new FormatManager(new class {
+        // Arrange
+        $manager = new FormatManager(new class
+        {
             #[Format]
             public function foo() {}
         });
 
-        # Act
+        // Act
         $manager->select('bar');
     }
 
-    # region Data Providers
+    // region Data Providers
 
     public static function currentFormatProvider(): array
     {
         return [
             'implicit default is used as the initial current format' => [
-                fn() => new FormatManager(new class {
+                fn () => new FormatManager(new class
+                {
                     #[Format]
                     public function foo() {}
                 }),
                 'foo',
             ],
             'explicit default is used as the initial current format' => [
-                fn() => new FormatManager(new class {
+                fn () => new FormatManager(new class
+                {
                     #[Format]
                     public function bar() {}
 
@@ -150,7 +155,8 @@ class FormatManagerTest extends TestCase
                 'foo',
             ],
             'selected by implicit name' => [
-                fn() => (new FormatManager(new class {
+                fn () => (new FormatManager(new class
+                {
                     #[Format]
                     public function bar() {}
 
@@ -160,7 +166,8 @@ class FormatManagerTest extends TestCase
                 'bar',
             ],
             'selected by explicit name' => [
-                fn() => (new FormatManager(new class {
+                fn () => (new FormatManager(new class
+                {
                     #[Format('foobar')]
                     public function bar() {}
 
@@ -170,7 +177,8 @@ class FormatManagerTest extends TestCase
                 'foobar',
             ],
             'selected by alias' => [
-                fn() => (new FormatManager(new class {
+                fn () => (new FormatManager(new class
+                {
                     #[Format, Format('foobar')]
                     public function bar() {}
 
@@ -186,14 +194,16 @@ class FormatManagerTest extends TestCase
     {
         return [
             'implicit default' => [
-                'subject' => new class {
+                'subject' => new class
+                {
                     #[Format]
                     public function foo() {}
                 },
                 'expectedFormat' => 'foo',
             ],
             'explicit default' => [
-                'subject' => new class {
+                'subject' => new class
+                {
                     #[Format]
                     public function bar() {}
 
@@ -207,7 +217,8 @@ class FormatManagerTest extends TestCase
                 'expectedFormat' => 'foo',
             ],
             'overridden default' => [
-                'subject' => new class extends ParentClass {
+                'subject' => new class extends ParentClass
+                {
                     #[IsDefault, Format]
                     public function bar() {}
                 },
@@ -220,7 +231,8 @@ class FormatManagerTest extends TestCase
     {
         return [
             'implicit format exists' => [
-                'subject' => new class {
+                'subject' => new class
+                {
                     #[Format]
                     public function foo() {}
                 },
@@ -228,7 +240,8 @@ class FormatManagerTest extends TestCase
                 'expectedResult' => true,
             ],
             'explicit format exists' => [
-                'subject' => new class {
+                'subject' => new class
+                {
                     #[Format('foobar')]
                     public function foo() {}
                 },
@@ -236,7 +249,8 @@ class FormatManagerTest extends TestCase
                 'expectedResult' => true,
             ],
             'alias format exists' => [
-                'subject' => new class {
+                'subject' => new class
+                {
                     #[Format, Format('foobar')]
                     public function foo() {}
                 },
@@ -244,7 +258,8 @@ class FormatManagerTest extends TestCase
                 'expectedResult' => true,
             ],
             'implicit name does not exist if only explicitly named' => [
-                'subject' => new class {
+                'subject' => new class
+                {
                     #[Format('foobar')]
                     public function foo() {}
                 },
@@ -252,7 +267,8 @@ class FormatManagerTest extends TestCase
                 'expectedResult' => false,
             ],
             'non-existent format does not exist' => [
-                'subject' => new class {
+                'subject' => new class
+                {
                     #[Format]
                     public function foo() {}
                 },
@@ -266,7 +282,8 @@ class FormatManagerTest extends TestCase
     {
         return [
             'explicit/explicit' => [
-                'subject' => new class {
+                'subject' => new class
+                {
                     #[Format('foo')]
                     public function formatOne() {}
 
@@ -275,7 +292,8 @@ class FormatManagerTest extends TestCase
                 },
             ],
             'explicit/implicit' => [
-                'subject' => new class {
+                'subject' => new class
+                {
                     #[Format]
                     public function foo() {}
 
@@ -286,10 +304,11 @@ class FormatManagerTest extends TestCase
         ];
     }
 
-    # endregion
+    // endregion
 }
 
-class ParentClass {
+class ParentClass
+{
     #[IsDefault, Format]
     public function foo() {}
 }

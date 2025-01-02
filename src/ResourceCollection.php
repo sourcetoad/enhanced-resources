@@ -20,7 +20,7 @@ abstract class ResourceCollection extends BaseResourceCollection
     {
         parent::__construct($resource);
 
-        if (!is_a($this->collects, Resource::class, true)) {
+        if (! is_a($this->collects, Resource::class, true)) {
             throw new CannotEnhanceBaseResourcesException($this->collects);
         }
     }
@@ -28,7 +28,7 @@ abstract class ResourceCollection extends BaseResourceCollection
     public function __call($method, $parameters): mixed
     {
         if ((new ReflectionClass($this->collects))->hasMethod($method)) {
-            $this->collection->map(fn(Resource $resource) => $resource->{$method}(...$parameters));
+            $this->collection->map(fn (Resource $resource) => $resource->{$method}(...$parameters));
 
             return $this;
         }
@@ -38,7 +38,7 @@ abstract class ResourceCollection extends BaseResourceCollection
 
     public function format(string $name): static
     {
-        $this->collection->each(fn(Resource $resource) => $resource->format($name));
+        $this->collection->each(fn (Resource $resource) => $resource->format($name));
 
         return $this;
     }

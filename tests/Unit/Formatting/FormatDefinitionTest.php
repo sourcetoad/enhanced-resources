@@ -17,31 +17,32 @@ class FormatDefinitionTest extends TestCase
     #[DataProvider('nameDetectionProvider')]
     public function test_name_is_properly_detected(ReflectionMethod $method, Closure $assertions): void
     {
-        # Act
+        // Act
         $definition = new FormatDefinition($method);
 
-        # Assert
+        // Assert
         $assertions($definition);
     }
 
     #[DataProvider('defaultDetectionProvider')]
     public function test_explicit_default_is_properly_detected(ReflectionMethod $method, bool $expected): void
     {
-        # Arrange
+        // Arrange
         $definition = new FormatDefinition($method);
 
-        # Act
+        // Act
         $actual = $definition->isExplicitlyDefault();
 
-        # Assert
+        // Assert
         $this->assertSame($expected, $actual);
     }
 
-    # region Data Providers
+    // region Data Providers
 
     public static function defaultDetectionProvider(): array
     {
-        $subject = new class {
+        $subject = new class
+        {
             #[Format('bar')]
             public function barFormat() {}
 
@@ -63,7 +64,8 @@ class FormatDefinitionTest extends TestCase
 
     public static function nameDetectionProvider(): array
     {
-        $subject = new class {
+        $subject = new class
+        {
             #[Format('bar')]
             public function barFormat() {}
 
@@ -82,16 +84,16 @@ class FormatDefinitionTest extends TestCase
                 'method' => new ReflectionMethod($subject, 'barFormat'),
                 'assertions' => function (FormatDefinition $definition) {
                     static::assertSame('bar', $definition->name());
-                }
+                },
             ],
             'alias' => [
                 'method' => new ReflectionMethod($subject, 'foo'),
                 'assertions' => function (FormatDefinition $definition) {
                     static::assertContains('fooAlias', $definition->names());
-                }
+                },
             ],
         ];
     }
 
-    # endregion
+    // endregion
 }
