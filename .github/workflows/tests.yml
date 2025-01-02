@@ -36,5 +36,8 @@ jobs:
       - name: Install dependencies
         run: composer update ${{ matrix.stability }} --prefer-dist --no-interaction --no-suggest
 
+      - name: Run style check
+        run: vendor/bin/pint --test
+
       - name: Execute tests
         run: vendor/bin/phpunit
