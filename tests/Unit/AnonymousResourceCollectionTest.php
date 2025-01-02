@@ -19,10 +19,10 @@ class AnonymousResourceCollectionTest extends TestCase
         AnonymousResourceCollection $collection,
         array $expectedData
     ): void {
-        # Act
+        // Act
         $actualData = $collection->toArray(request());
 
-        # Assert
+        // Assert
         $this->assertSame($expectedData, $actualData);
     }
 
@@ -31,16 +31,16 @@ class AnonymousResourceCollectionTest extends TestCase
         ResourceCollection $resource,
         array $expectedData,
     ): void {
-        # Act
+        // Act
         $actualData = $resource->toArray(request());
 
-        # Assert
+        // Assert
         $this->assertSame($expectedData, $actualData);
     }
 
     public function test_response_status_can_be_set(): void
     {
-        # Arrange
+        // Arrange
         $john = new stdClass;
         $john->id = 1;
         $john->firstName = 'John';
@@ -53,14 +53,14 @@ class AnonymousResourceCollectionTest extends TestCase
 
         $collection = ImplicitDefaultResource::collection([$john, $jane]);
 
-        # Act
+        // Act
         $response = $collection->setResponseStatus(201)->response();
 
-        # Assert
+        // Assert
         $this->assertSame(201, $response->getStatusCode());
     }
 
-    # region Data Providers
+    // region Data Providers
 
     public static function formatProvider(): array
     {
@@ -176,7 +176,7 @@ class AnonymousResourceCollectionTest extends TestCase
             ],
             'closure modification adding data' => [
                 'resource' => ImplicitDefaultResource::collection([$john, $jane])
-                    ->modify(fn(array $data) => array_merge($data, ['middle_initial' => 'A.'])),
+                    ->modify(fn (array $data) => array_merge($data, ['middle_initial' => 'A.'])),
                 'expectedData' => [
                     [
                         'first_name' => 'John',
@@ -194,7 +194,7 @@ class AnonymousResourceCollectionTest extends TestCase
             ],
             'closure modification overwriting data' => [
                 'resource' => ImplicitDefaultResource::collection([$john, $jane])
-                    ->modify(fn(array $data) => array_merge($data, ['first_name' => 'Jon'])),
+                    ->modify(fn (array $data) => array_merge($data, ['first_name' => 'Jon'])),
                 'expectedData' => [
                     [
                         'first_name' => 'Jon',
@@ -210,7 +210,7 @@ class AnonymousResourceCollectionTest extends TestCase
             ],
             'closure modification completely overwriting data' => [
                 'resource' => ImplicitDefaultResource::collection([$john, $jane])
-                    ->modify(fn() => ['id' => 1]),
+                    ->modify(fn () => ['id' => 1]),
                 'expectedData' => [
                     ['id' => 1],
                     ['id' => 1],
@@ -238,7 +238,8 @@ class AnonymousResourceCollectionTest extends TestCase
             ],
             'invokable modification adding data' => [
                 'resource' => ImplicitDefaultResource::collection([$john, $jane])
-                    ->modify(new class {
+                    ->modify(new class
+                    {
                         public function __invoke(array $data): array
                         {
                             return array_merge($data, ['middle_initial' => 'A.']);
@@ -261,7 +262,8 @@ class AnonymousResourceCollectionTest extends TestCase
             ],
             'invokable modification overwriting data' => [
                 'resource' => ImplicitDefaultResource::collection([$john, $jane])
-                    ->modify(new class {
+                    ->modify(new class
+                    {
                         public function __invoke(array $data): array
                         {
                             return array_merge($data, ['first_name' => 'Jon']);
@@ -282,7 +284,8 @@ class AnonymousResourceCollectionTest extends TestCase
             ],
             'invokable modification completely overwriting data' => [
                 'resource' => ImplicitDefaultResource::collection([$john, $jane])
-                    ->modify(new class {
+                    ->modify(new class
+                    {
                         public function __invoke(array $data): array
                         {
                             return ['id' => 1];
@@ -295,7 +298,8 @@ class AnonymousResourceCollectionTest extends TestCase
             ],
             'invokable modification accessing resource' => [
                 'resource' => ImplicitDefaultResource::collection([$john, $jane])
-                    ->modify(new class {
+                    ->modify(new class
+                    {
                         public function __invoke(array $data, ImplicitDefaultResource $resource): array
                         {
                             $data['id'] = $resource->resource->id * 2;
@@ -324,7 +328,8 @@ class AnonymousResourceCollectionTest extends TestCase
 
                         return $data;
                     })
-                    ->modify(new class {
+                    ->modify(new class
+                    {
                         public function __invoke(array $data, ImplicitDefaultResource $resource): array
                         {
                             $data['id'] = $resource->resource->id * 2;
@@ -350,5 +355,5 @@ class AnonymousResourceCollectionTest extends TestCase
         ];
     }
 
-    # endregion
+    // endregion
 }

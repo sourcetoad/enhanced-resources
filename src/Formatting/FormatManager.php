@@ -16,9 +16,13 @@ use Sourcetoad\EnhancedResources\Formatting\Attributes\Format;
 class FormatManager
 {
     protected ?string $current;
+
     protected ?FormatDefinition $default;
+
     protected Collection $formats;
+
     protected ReflectionObject $reflection;
+
     protected object $subject;
 
     public function __construct(object $subject)
@@ -27,13 +31,13 @@ class FormatManager
         $this->subject = $subject;
 
         $definitions = (new Collection($this->reflection->getMethods()))
-            ->filter(fn(ReflectionMethod $method) => !empty($method->getAttributes(Format::class)))
+            ->filter(fn (ReflectionMethod $method) => ! empty($method->getAttributes(Format::class)))
             ->mapInto(FormatDefinition::class);
 
         $this->formats = $definitions
             ->tap(Closure::fromCallable([$this, 'preventFormatNameCollisions']))
-            ->flatMap(fn(FormatDefinition $definition) => $definition->names()
-                ->mapWithKeys(fn(string $name) => [$name => $definition]));
+            ->flatMap(fn (FormatDefinition $definition) => $definition->names()
+                ->mapWithKeys(fn (string $name) => [$name => $definition]));
 
         $this->default = $this->determineDefault($definitions);
 
@@ -67,7 +71,7 @@ class FormatManager
 
     public function lacksFormat(string $name): bool
     {
-        return !$this->hasFormat($name);
+        return ! $this->hasFormat($name);
     }
 
     public function select(string $name): static
@@ -87,7 +91,7 @@ class FormatManager
             return $definitions->first();
         }
 
-        $definitions = $definitions->filter(fn(FormatDefinition $definition) => $definition->isExplicitlyDefault());
+        $definitions = $definitions->filter(fn (FormatDefinition $definition) => $definition->isExplicitlyDefault());
         $class = $this->reflection;
 
         do {
@@ -99,17 +103,17 @@ class FormatManager
                 ->first();
 
             $class = $class->getParentClass();
-        } while($class && $default === null);
+        } while ($class && $default === null);
 
         return $default;
     }
 
     protected function preventFormatNameCollisions(Collection $formatMethods): void
     {
-        $formatMethods->flatMap(fn(FormatDefinition $definition) => $definition->names())
+        $formatMethods->flatMap(fn (FormatDefinition $definition) => $definition->names())
             ->countBy()
-            ->filter(fn(int $count) => $count > 1)
-            ->whenNotEmpty(fn(Collection $collisions) => throw new FormatNameCollisionException(
+            ->filter(fn (int $count) => $count > 1)
+            ->whenNotEmpty(fn (Collection $collisions) => throw new FormatNameCollisionException(
                 $this->subject,
                 $collisions->keys()->first(),
             ));

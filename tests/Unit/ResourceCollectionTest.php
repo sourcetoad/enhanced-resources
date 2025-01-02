@@ -23,20 +23,21 @@ class ResourceCollectionTest extends TestCase
         ResourceCollection $collection,
         array $expectedData
     ): void {
-        # Act
+        // Act
         $actualData = $collection->toArray(request());
 
-        # Assert
+        // Assert
         $this->assertSame($expectedData, $actualData);
     }
 
     public function test_exception_is_thrown_if_collecting_non_enhanced_resource(): void
     {
-        # Expect
+        // Expect
         $this->expectException(CannotEnhanceBaseResourcesException::class);
 
-        # Act
-        new class([]) extends ResourceCollection {
+        // Act
+        new class([]) extends ResourceCollection
+        {
             public $collects = JsonResource::class;
         };
     }
@@ -46,16 +47,16 @@ class ResourceCollectionTest extends TestCase
         ResourceCollection $resource,
         array $expectedData,
     ): void {
-        # Act
+        // Act
         $actualData = $resource->toArray(request());
 
-        # Assert
+        // Assert
         $this->assertSame($expectedData, $actualData);
     }
 
     public function test_response_status_can_be_set(): void
     {
-        # Arrange
+        // Arrange
         $john = new stdClass;
         $john->id = 1;
         $john->firstName = 'John';
@@ -68,14 +69,14 @@ class ResourceCollectionTest extends TestCase
 
         $collection = new ImplicitDefaultCollection([$john, $jane]);
 
-        # Act
+        // Act
         $response = $collection->setResponseStatus(201)->response();
 
-        # Assert
+        // Assert
         $this->assertSame(201, $response->getStatusCode());
     }
 
-    # region Data Providers
+    // region Data Providers
 
     public static function formatProvider(): array
     {
@@ -91,7 +92,8 @@ class ResourceCollectionTest extends TestCase
 
         return [
             'implicit default is used' => [
-                'collection' => new class([$john, $jane]) extends ResourceCollection {
+                'collection' => new class([$john, $jane]) extends ResourceCollection
+                {
                     public $collects = ImplicitDefaultResource::class;
                 },
                 'expectedData' => [
@@ -108,7 +110,8 @@ class ResourceCollectionTest extends TestCase
                 ],
             ],
             'explicit default is used' => [
-                'collection' => new class([$john, $jane]) extends ResourceCollection {
+                'collection' => new class([$john, $jane]) extends ResourceCollection
+                {
                     public $collects = ExplicitDefaultResource::class;
                 },
                 'expectedData' => [
@@ -125,7 +128,8 @@ class ResourceCollectionTest extends TestCase
                 ],
             ],
             'specified format is used' => [
-                'collection' => (new class([$john, $jane]) extends ResourceCollection {
+                'collection' => (new class([$john, $jane]) extends ResourceCollection
+                {
                     public $collects = ExplicitDefaultResource::class;
                 })->format('bar'),
                 'expectedData' => [
@@ -197,7 +201,7 @@ class ResourceCollectionTest extends TestCase
             ],
             'closure modification adding data' => [
                 'resource' => ImplicitDefaultCollection::make([$john, $jane])
-                    ->modify(fn(array $data) => array_merge($data, ['middle_initial' => 'A.'])),
+                    ->modify(fn (array $data) => array_merge($data, ['middle_initial' => 'A.'])),
                 'expectedData' => [
                     [
                         'first_name' => 'John',
@@ -215,7 +219,7 @@ class ResourceCollectionTest extends TestCase
             ],
             'closure modification overwriting data' => [
                 'resource' => ImplicitDefaultCollection::make([$john, $jane])
-                    ->modify(fn(array $data) => array_merge($data, ['first_name' => 'Jon'])),
+                    ->modify(fn (array $data) => array_merge($data, ['first_name' => 'Jon'])),
                 'expectedData' => [
                     [
                         'first_name' => 'Jon',
@@ -231,7 +235,7 @@ class ResourceCollectionTest extends TestCase
             ],
             'closure modification completely overwriting data' => [
                 'resource' => ImplicitDefaultCollection::make([$john, $jane])
-                    ->modify(fn() => ['id' => 1]),
+                    ->modify(fn () => ['id' => 1]),
                 'expectedData' => [
                     ['id' => 1],
                     ['id' => 1],
@@ -259,7 +263,8 @@ class ResourceCollectionTest extends TestCase
             ],
             'invokable modification adding data' => [
                 'resource' => ImplicitDefaultCollection::make([$john, $jane])
-                    ->modify(new class {
+                    ->modify(new class
+                    {
                         public function __invoke(array $data): array
                         {
                             return array_merge($data, ['middle_initial' => 'A.']);
@@ -282,7 +287,8 @@ class ResourceCollectionTest extends TestCase
             ],
             'invokable modification overwriting data' => [
                 'resource' => ImplicitDefaultCollection::make([$john, $jane])
-                    ->modify(new class {
+                    ->modify(new class
+                    {
                         public function __invoke(array $data): array
                         {
                             return array_merge($data, ['first_name' => 'Jon']);
@@ -303,7 +309,8 @@ class ResourceCollectionTest extends TestCase
             ],
             'invokable modification completely overwriting data' => [
                 'resource' => ImplicitDefaultCollection::make([$john, $jane])
-                    ->modify(new class {
+                    ->modify(new class
+                    {
                         public function __invoke(array $data): array
                         {
                             return ['id' => 1];
@@ -316,7 +323,8 @@ class ResourceCollectionTest extends TestCase
             ],
             'invokable modification accessing resource' => [
                 'resource' => ImplicitDefaultCollection::make([$john, $jane])
-                    ->modify(new class {
+                    ->modify(new class
+                    {
                         public function __invoke(array $data, ImplicitDefaultResource $resource): array
                         {
                             $data['id'] = $resource->resource->id * 2;
@@ -345,7 +353,8 @@ class ResourceCollectionTest extends TestCase
 
                         return $data;
                     })
-                    ->modify(new class {
+                    ->modify(new class
+                    {
                         public function __invoke(array $data, ImplicitDefaultResource $resource): array
                         {
                             $data['id'] = $resource->resource->id * 2;
@@ -376,7 +385,8 @@ class ResourceCollectionTest extends TestCase
 
                         return $data;
                     })
-                    ->modify(new class {
+                    ->modify(new class
+                    {
                         public function __invoke(array $data, ImplicitDefaultResource $resource): array
                         {
                             $data['id'] = $resource->resource->id * 2;
@@ -407,7 +417,8 @@ class ResourceCollectionTest extends TestCase
 
                         return $data;
                     })
-                    ->modify(new class {
+                    ->modify(new class
+                    {
                         public function __invoke(array $data, ImplicitDefaultResource $resource): array
                         {
                             $data['id'] = $resource->resource->id * 2;
@@ -433,5 +444,5 @@ class ResourceCollectionTest extends TestCase
         ];
     }
 
-    # endregion
+    // endregion
 }

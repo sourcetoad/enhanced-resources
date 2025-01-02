@@ -18,20 +18,21 @@ class ExceptTest extends TestCase
         Resource $resource,
         array $expectedData,
     ): void {
-        # Act
+        // Act
         $actualData = $resource->toArray(request());
 
-        # Assert
+        // Assert
         $this->assertSame($expectedData, $actualData);
     }
 
-    # region Data Providers
+    // region Data Providers
 
     public static function resourceProvider(): array
     {
         return [
             'applied manually' => [
-                'resource' => (new class(null) extends Resource {
+                'resource' => (new class(null) extends Resource
+                {
                     #[Format]
                     public function foo(): array
                     {
@@ -48,7 +49,8 @@ class ExceptTest extends TestCase
                 ],
             ],
             'applied via trait' => [
-                'resource' => (new class(null) extends Resource {
+                'resource' => (new class(null) extends Resource
+                {
                     use HasExceptEnhancement;
 
                     #[Format]
@@ -69,5 +71,5 @@ class ExceptTest extends TestCase
         ];
     }
 
-    # endregion
+    // endregion
 }

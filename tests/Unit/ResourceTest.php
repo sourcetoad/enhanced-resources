@@ -19,29 +19,30 @@ class ResourceTest extends TestCase
     #[DataProvider('formatProvider')]
     public function test_resource_is_formatted_correctly(Resource $resource, array $expectedData): void
     {
-        # Act
+        // Act
         $actualData = $resource->toArray(request());
 
-        # Assert
+        // Assert
         $this->assertSame($expectedData, $actualData);
     }
 
     public function test_exception_is_thrown_if_no_formats_are_defined(): void
     {
-        # Expect
+        // Expect
         $this->expectException(NoDefinedFormatsException::class);
 
-        # Act
+        // Act
         new class(null) extends Resource {};
     }
 
     public function test_exception_is_thrown_if_no_format_is_selected(): void
     {
-        # Expect
+        // Expect
         $this->expectException(NoFormatSelectedException::class);
 
-        # Act
-        (new class(null) extends Resource {
+        // Act
+        (new class(null) extends Resource
+        {
             #[Format]
             public function bar() {}
 
@@ -53,35 +54,37 @@ class ResourceTest extends TestCase
     #[DataProvider('modificationProvider')]
     public function test_resource_can_be_modified_dynamically(Resource $resource, array $expectedData): void
     {
-        # Act
+        // Act
         $actualData = $resource->toArray(request());
 
-        # Assert
+        // Assert
         $this->assertSame($expectedData, $actualData);
     }
 
     public function test_response_status_can_be_set(): void
     {
-        # Arrange
-        $resource = (new class(null) extends Resource {
+        // Arrange
+        $resource = (new class(null) extends Resource
+        {
             #[Format]
             public function foo() {}
         });
 
-        # Act
+        // Act
         $response = $resource->setResponseStatus(201)->response();
 
-        # Assert
+        // Assert
         $this->assertSame(201, $response->getStatusCode());
     }
 
-    # region Data Providers
+    // region Data Providers
 
     public static function formatProvider(): array
     {
         return [
             'implicit default is used' => [
-                'resource' => (new class(null) extends Resource {
+                'resource' => (new class(null) extends Resource
+                {
                     #[Format]
                     public function foo(): array
                     {
@@ -99,7 +102,8 @@ class ResourceTest extends TestCase
                 ],
             ],
             'explicit default is used' => [
-                'resource' => (new class(null) extends Resource {
+                'resource' => (new class(null) extends Resource
+                {
                     #[Format]
                     public function bar(): array
                     {
@@ -131,7 +135,8 @@ class ResourceTest extends TestCase
                 ],
             ],
             'explicitly selected format is used' => [
-                'resource' => (new class(null) extends Resource {
+                'resource' => (new class(null) extends Resource
+                {
                     #[Format]
                     public function bar(): array
                     {
@@ -192,7 +197,7 @@ class ResourceTest extends TestCase
             ],
             'closure modification adding data' => [
                 'resource' => ImplicitDefaultResource::make($john)
-                    ->modify(fn(array $data) => array_merge($data, ['middle_initial' => 'A.'])),
+                    ->modify(fn (array $data) => array_merge($data, ['middle_initial' => 'A.'])),
                 'expectedData' => [
                     'first_name' => 'John',
                     'id' => 1,
@@ -202,7 +207,7 @@ class ResourceTest extends TestCase
             ],
             'closure modification overwriting data' => [
                 'resource' => ImplicitDefaultResource::make($john)
-                    ->modify(fn(array $data) => array_merge($data, ['first_name' => 'Jon'])),
+                    ->modify(fn (array $data) => array_merge($data, ['first_name' => 'Jon'])),
                 'expectedData' => [
                     'first_name' => 'Jon',
                     'id' => 1,
@@ -211,7 +216,7 @@ class ResourceTest extends TestCase
             ],
             'closure modification completely overwriting data' => [
                 'resource' => ImplicitDefaultResource::make($john)
-                    ->modify(fn() => ['id' => 1]),
+                    ->modify(fn () => ['id' => 1]),
                 'expectedData' => ['id' => 1],
             ],
             'closure modification accessing resource' => [
@@ -229,7 +234,8 @@ class ResourceTest extends TestCase
             ],
             'invokable modification adding data' => [
                 'resource' => ImplicitDefaultResource::make($john)
-                    ->modify(new class {
+                    ->modify(new class
+                    {
                         public function __invoke(array $data): array
                         {
                             return array_merge($data, ['middle_initial' => 'A.']);
@@ -244,7 +250,8 @@ class ResourceTest extends TestCase
             ],
             'invokable modification overwriting data' => [
                 'resource' => ImplicitDefaultResource::make($john)
-                    ->modify(new class {
+                    ->modify(new class
+                    {
                         public function __invoke(array $data): array
                         {
                             return array_merge($data, ['first_name' => 'Jon']);
@@ -258,7 +265,8 @@ class ResourceTest extends TestCase
             ],
             'invokable modification completely overwriting data' => [
                 'resource' => ImplicitDefaultResource::make($john)
-                    ->modify(new class {
+                    ->modify(new class
+                    {
                         public function __invoke(array $data): array
                         {
                             return ['id' => 1];
@@ -268,7 +276,8 @@ class ResourceTest extends TestCase
             ],
             'invokable modification accessing resource' => [
                 'resource' => ImplicitDefaultResource::make($john)
-                    ->modify(new class {
+                    ->modify(new class
+                    {
                         public function __invoke(array $data, ImplicitDefaultResource $resource): array
                         {
                             $data['id'] = $resource->resource->id * 2;
@@ -290,7 +299,8 @@ class ResourceTest extends TestCase
 
                         return $data;
                     })
-                    ->modify(new class {
+                    ->modify(new class
+                    {
                         public function __invoke(array $data, ImplicitDefaultResource $resource): array
                         {
                             $data['id'] = $resource->resource->id * 2;
@@ -308,5 +318,5 @@ class ResourceTest extends TestCase
         ];
     }
 
-    # endregion
+    // endregion
 }
