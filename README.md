@@ -297,25 +297,5 @@ use Symfony\Component\HttpFoundation\Response;
 ExampleResource::make($object)->setResponseStatus(Response::HTTP_I_AM_A_TEAPOT);
 ```
 
-### ConvertsToResource
-You can provide any object with a `toResource` method with a simple trait and attribute combination:
-
-```php
-use Illuminate\Database\Eloquent\Model;
-use Sourcetoad\EnhancedResources\Resourceable\AsResource;
-use Sourcetoad\EnhancedResources\Resourceable\ConvertsToResource;
-
-/**
- * @method ExampleResource toResource()
- */
-#[AsResource(ExampleResource::class)]
-class Example extends Model
-{
-    use ConvertsToResource;
-}
-
-(new Example)->toResource();
-```
-
 ## Testing
 Testing endpoints that respond with enhanced resources is recommended to be done using Laravel's existing response assertions. One approach to creating resource asserter objects to help simplify the process that leverages functionality provided by enhanced resources can be found [here](https://gist.github.com/Jasonej/4d76d916a888b4ffe1894782ddd7af32).
