@@ -9,7 +9,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        php: [8.2, 8.3, 8.4]
+        php: [8.3, 8.4]
         stability: ["--prefer-lowest", "--prefer-stable"]
     name: PHP ${{ matrix.php }} - ${{ matrix.stability }}
     steps:
@@ -21,7 +21,7 @@ jobs:
         with:
           php-version: ${{ matrix.php }}
           extensions: dom, curl, libxml, mbstring, zip, pcntl, gd
-          coverage: none
+          coverage: ${{ (matrix.php == '8.4' && matrix.stability == '--prefer-stable') && 'pcov' || 'none' }}
 
       - name: Get Composer Cache Directory
         id: composer-cache
@@ -41,5 +41,15 @@ jobs:
       - name: Run style check
         run: vendor/bin/pint --test
 
+      - name: Run static analysis
+        run: vendor/bin/phpstan analyse
+
       - name: Execute tests
-        run: vendor/bin/phpunit
+        env:
+          COLLECT_COVERAGE: ${{ matrix.php == '8.4' && matrix.stability == '--prefer-stable' }}
+        run: |
+          if [ "$COLLECT_COVERAGE" = "true" ]; then
+            vendor/bin/phpunit --coverage-text --colors=never >> $GITHUB_STEP_SUMMARY
+          else
+            vendor/bin/phpunit
+          fi
