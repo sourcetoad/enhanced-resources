@@ -1,0 +1,21 @@
+{
+    "preset": "laravel",
+    "rules": {
+        "blank_line_between_import_groups": false,
+        "class_attributes_separation": false,
+        "declare_strict_types": true,
+        "function_declaration": {
+            "closure_fn_spacing": "none"
+        },
+        "not_operator_with_successor_space": false,
+        "ordered_imports": true,
+        "phpdoc_align": false,
+        "phpdoc_separation": false,
+        "phpdoc_types": {
+            "exclude": ["resource"]
+        },
+        "php_unit_method_casing": {
+            "case": "camel_case"
+        }
+    }
+}
