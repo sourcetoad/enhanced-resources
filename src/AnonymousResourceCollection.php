@@ -4,11 +4,15 @@ declare(strict_types=1);
 
 namespace Sourcetoad\EnhancedResources;
 
+use Illuminate\Contracts\Support\Arrayable;
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection as IlluminateAnonymousResourceCollection;
 use Illuminate\Pagination\AbstractCursorPaginator;
 use Illuminate\Pagination\AbstractPaginator;
 use Illuminate\Support\Collection;
+use JsonSerializable;
 use Override;
+use Sourcetoad\EnhancedResources\Formatting\InteractsWithFormatting;
 use Traversable;
 
 /**
@@ -18,6 +22,8 @@ use Traversable;
  */
 class AnonymousResourceCollection extends IlluminateAnonymousResourceCollection
 {
+    use InteractsWithFormatting;
+
     /**
      * @param iterable<array-key, TResource>|AbstractPaginator<array-key, TResource>|AbstractCursorPaginator<array-key, TResource> $resource
      * @param class-string<Resource<TResource>> $collects
@@ -29,6 +35,8 @@ class AnonymousResourceCollection extends IlluminateAnonymousResourceCollection
         }
 
         parent::__construct($resource, $collects);
+
+        $this->initializeFormatting($collects);
     }
 
     /**
@@ -38,5 +46,20 @@ class AnonymousResourceCollection extends IlluminateAnonymousResourceCollection
     public function getIterator(): Traversable
     {
         return parent::getIterator();
+    }
+
+    /**
+     * @return array<array-key, mixed>|Arrayable<array-key, mixed>|JsonSerializable
+     */
+    public function toArray(Request $request): array|Arrayable|JsonSerializable
+    {
+        $currentFormat = $this->formatHandler->current();
+        if ($currentFormat && $this->collection) {
+            $this->collection->each(function (Resource $resource) use ($currentFormat) {
+                $resource->format($currentFormat->name);
+            });
+        }
+
+        return parent::toArray($request);
     }
 }

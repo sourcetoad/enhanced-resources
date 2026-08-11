@@ -4,10 +4,16 @@ declare(strict_types=1);
 
 namespace Sourcetoad\EnhancedResources;
 
+use Illuminate\Contracts\Support\Arrayable;
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Pagination\AbstractCursorPaginator;
 use Illuminate\Pagination\AbstractPaginator;
+use JsonSerializable;
 use Override;
+use Sourcetoad\EnhancedResources\Formatting\FormatNotSelectedException;
+use Sourcetoad\EnhancedResources\Formatting\InteractsWithFormatting;
+use Sourcetoad\EnhancedResources\Formatting\InvalidFormatDefinitionException;
 
 /**
  * @template TResource
@@ -16,12 +22,40 @@ use Override;
  */
 abstract class Resource extends JsonResource
 {
+    use InteractsWithFormatting;
+
     /**
      * @param TResource $resource
      */
     public function __construct($resource)
     {
         parent::__construct($resource);
+
+        $this->initializeFormatting(static::class);
+    }
+
+    /**
+     * @return array<array-key, mixed>|Arrayable<array-key, mixed>|JsonSerializable
+     */
+    public function toArray(Request $request): array|Arrayable|JsonSerializable
+    {
+        $currentFormat = $this->formatHandler->current();
+
+        if (!$currentFormat) {
+            throw new FormatNotSelectedException(static::class);
+        }
+
+        $result = $currentFormat->methodReflection->invoke($this, $request);
+
+        if (!is_array($result) && !($result instanceof Arrayable) && !($result instanceof JsonSerializable)) {
+            throw new InvalidFormatDefinitionException(
+                static::class,
+                $currentFormat->name,
+                get_debug_type($result),
+            );
+        }
+
+        return $result;
     }
 
     /**
