@@ -4,7 +4,13 @@ declare(strict_types=1);
 
 namespace Sourcetoad\EnhancedResources;
 
+use Illuminate\Contracts\Support\Arrayable;
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\ResourceCollection as IlluminateResourceCollection;
+use JsonSerializable;
+use Override;
+use Sourcetoad\EnhancedResources\Formatting\FormatNotSelectedException;
+use Sourcetoad\EnhancedResources\Formatting\HasFormats;
 use Traversable;
 
 /**
@@ -13,6 +19,8 @@ use Traversable;
  */
 abstract class ResourceCollection extends IlluminateResourceCollection
 {
+    use HasFormats;
+
     /**
      * @param TSource $resource
      */
@@ -27,6 +35,8 @@ abstract class ResourceCollection extends IlluminateResourceCollection
             );
         }
 
+        $this->initializeFormatHandling($collects);
+
         parent::__construct($resource);
     }
 
@@ -36,5 +46,26 @@ abstract class ResourceCollection extends IlluminateResourceCollection
     public function getIterator(): Traversable
     {
         return parent::getIterator();
+    }
+
+    /**
+     * @return array<array-key, mixed>|Arrayable<array-key, mixed>|JsonSerializable
+     */
+    #[Override]
+    public function toArray(Request $request): array|Arrayable|JsonSerializable
+    {
+        $selectedFormat = $this->formatHandler->selected();
+
+        if ($selectedFormat === null) {
+            throw new FormatNotSelectedException;
+        }
+
+        $this->collection?->each(function (mixed $resource) use ($selectedFormat) {
+            if ($resource instanceof Resource) {
+                $resource->format($selectedFormat->name);
+            }
+        });
+
+        return parent::toArray($request);
     }
 }
